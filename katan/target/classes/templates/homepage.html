@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html
+    xmlns:th="https://www.thymeleaf.org"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{base}">
+
+<head>
+    <title>Home</title>
+</head>
+
+<body>
+
+<header layout:fragment="header">
+    <h1>My City Gov</h1>
+    <h3>The Only Way to ask for stuff from the government</h3>
+</header>
+
+<section layout:fragment="main">
+
+
+    <div>
+        <p>Do you need something? Please do not hesitate to ask. We will try our best to facilitate your needs upon your request!</p>
+        <p>Or not lol :)</p>
+    </div>
+
+    <div class="text-center mt-4">
+        <p><a th:href="@{/login}">Log in</a></p>
+        <p><a th:href="@{/register}">Register</a></p>
+    </div>
+
+</section>
+
+</body>
+</html>
