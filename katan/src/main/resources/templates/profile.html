@@ -11,24 +11,16 @@
 <body>
 
 <header layout:fragment="header">
-    <h1>Office Hours <small>/ Profile</small></h1>
+    <h1>My City Gov <small>/ Profile</small></h1>
 </header>
 
 <section layout:fragment="main">
 
     <div>
         <ul>
-            <li>Email <span>????</span></li>
-            <li>Type <span>???? (student / teacher)</span></li>
+            <li>Email: <span th:text="${me.emailAddress()}"></span></li>
+            <li>Type: <span th:text="${me.type()}"></span></li>
         </ul>
-
-        <!-- TODO Use user data -->
-        <!--
-        <ul>
-            <li>Email <span th:text="${me.emailAddress()}"></span></li>
-            <li>Type <span  th:text="${me.type()}"></span></li>
-        </ul>
-        -->
 
         <hr>
 
