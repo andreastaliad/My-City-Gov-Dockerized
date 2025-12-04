@@ -12,6 +12,7 @@ Install Docker(Debian-Ubuntu):
 ```bash
   #Remove conflicting packages:
   sudo apt remove $(dpkg --get-selections docker.io docker-compose docker-compose-v2 docker-doc podman-docker containerd runc | cut -f1)
+
   # Add Docker's official GPG key:
   sudo apt update
   sudo apt install ca-certificates curl
@@ -27,6 +28,8 @@ Install Docker(Debian-Ubuntu):
   Components: stable
   Signed-By: /etc/apt/keyrings/docker.asc
   EOF
+
+  sudo apt update
 
   sudo apt update
 
