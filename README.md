@@ -1,4 +1,10 @@
 
+# My City Gov
+My City Gov is your way to connect with all your goverment needs.
+
+
+
+
 ## Installation
 
 ### Run project with Docker:
@@ -43,3 +49,8 @@ Clone & run the app:
 
 
     
+## Related
+
+Used for sms services:
+
+[DS-Lab-NOC](https://github.com/gkoulis/DS-Lab-NOC)
