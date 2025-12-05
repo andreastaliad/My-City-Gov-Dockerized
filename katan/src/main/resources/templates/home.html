@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html
+        xmlns:th="https://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{base}">
+<head>
+    <title>MyCityGov-Home</title>
+    <style>
+        .hero {
+            padding: 80px 20px;
+            text-align: center;
+            background: linear-gradient(135deg, #0d6efd, #6ea8fe);
+            color: white;
+        }
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+        }
+        .nav-tabs .nav-link {
+            font-size: 1.1rem;
+        }
+        body {
+            background-color: #f7f9fc;
+        }
+    </style>
+</head>
+
+<body>
+<div layout:fragment="header">
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+            MyCityGov
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" th:href="@{/}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/profile}">Profile</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/requests}">Requests</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/appointments}">Appointments</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/issues}">Issues</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/logout}">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</div>
+
+<div layout:fragment="main">
+    <div class="hero">
+        <h1>Καλώς ήρθατε στο MyCityGov</h1>
+        <p class="lead">Η πλατφόρμα εξυπηρέτησης του Δήμου σας, από εμάς για εσάς.</p>
+    </div>
+    <!-- NAV TABS SECTION -->
+    <div class="container mt-5">
+        <ul class="nav nav-tabs" id="homeTabs" role="tabList">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="requests-tab" data-bs-toggle="tab" data-bs-target="#requests" type="button" role="tab">
+                    Αιτήματα
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="appointments-tab" data-bs-toggle="tab" data-bs-target="#appointments" type="button" role="tab">
+                    Ραντεβού
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="issues-tab" data-bs-toggle="tab" data-bs-target="#issues" type="button" role="tab">
+                    Προβλήματα
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content p-4 border border-top-0 bg-white" id="homeTabsContent">
+            <!-- Requests -->
+            <div class="tab-pane fade show active" id="requests" role="tabpanel">
+                <h4>Αιτήματα Πολιτών</h4>
+                <p>
+                    Δημιουργήστε νέο αίτημα ή παρακολουθήστε την πορεία κάποιου υπάρχοντος.
+                </p>
+                <a class="btn btn-primary" th:href="@{/requests}">Μετάβαση στα αιτήματα</a>
+            </div>
+            <!-- Appointments -->
+            <div class="tab-pane fade" id="appointments" role="tabpanel">
+                <h4>Ραντεβού</h4>
+                <p>
+                    Κλείστε ραντεβού με τις υπηρεσίες του Δήμου σας.
+                </p>
+                <a class="btn btn-primary" th:href="@{/appointments}">Κλείσιμο ραντεβού</a>
+            </div>
+            <!-- Issues -->
+            <div class="tab-pane fade" id="issues" role="tabpanel">
+                <h4>Προβλήματα</h4>
+                <p>
+                    Αναφέρετε οποιοδήποτε πρόβλημα παρατηρήσετε στον Δήμο σας ή κάτι που πιστεύετε πως χρήζει επίβλεψη.
+                </p>
+                <a class="btn btn-primary" th:href="@{/issues}">Αναφορά προβλήματος</a>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

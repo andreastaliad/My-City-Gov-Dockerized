@@ -13,7 +13,7 @@ public class HomepageController {
     @GetMapping("/")
     public String showHomepage(final Authentication authentication) {
         if (AuthUtils.isAuthenticated(authentication)) {
-            return "redirect:/profile";
+            return "redirect:/home";
         }
         return "homepage";
     }
