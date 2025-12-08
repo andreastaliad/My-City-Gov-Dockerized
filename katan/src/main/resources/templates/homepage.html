@@ -5,30 +5,38 @@
     layout:decorate="~{base}">
 
 <head>
-    <title>Home</title>
+    <title>Homepage</title>
+    <style>
+        .home-hero {
+            text-align: center;
+            padding: 40px;
+            margin-bottom: 20px;
+        }
+        .home-hero h2 {
+            font-weight: 700;
+        }
+        .home-hero p {
+            font-size: 1.1rem;
+            color: #555;
+        }
+    </style>
 </head>
 
 <body>
-
 <header layout:fragment="header">
     <h1>My City Gov</h1>
-    <h3>The Only Way to ask for stuff from the government</h3>
+    <h3>The Only Way to ask for stuff from the government.</h3>
 </header>
-
 <section layout:fragment="main">
-
-
-    <div>
-        <p>Do you need something? Please do not hesitate to ask. We will try our best to facilitate your needs upon your request!</p>
-        <p>Or not lol :)</p>
+    <div class="home-hero">
+        <h2>If you need something then please do not hesitate to ask.</h2>
+        <p>We will try our best to facilitate your needs upon your request!</p>
     </div>
-
-    <div class="text-center mt-4">
-        <p><a th:href="@{/login}">Log in</a></p>
-        <p><a th:href="@{/register}">Register</a></p>
+    <div class="d-flex justify-content-center gap-3 mt-4">
+        <p class="mb-3"><a class="btn btn-primary px-4" th:href="@{/login}">Log in</a></p>
+        <p><a class="btn btn-outline-primary px-4" th:href="@{/register}">Register</a></p>
     </div>
 
 </section>
-
 </body>
 </html>
