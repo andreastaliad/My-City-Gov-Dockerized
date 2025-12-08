@@ -11,30 +11,26 @@
 <body>
 
 <header layout:fragment="header">
-    <h1>My City Gov <small>/ Profile</small></h1>
+    <h2>Profile</h2>
 </header>
 
 <section layout:fragment="main">
+    <ul class="list-group mb-4">
+        <li class="list-group-item">
+            <strong>Email:</strong>
+            <span th:text="${me.emailAddress()}"></span>
+        </li>
+        <li class="list-group-item">
+            <strong>User type:</strong>
+            <span th:text="${me.type()}"></span>
+        </li>
+    </ul>
 
-    <div>
-        <ul>
-            <li>Email: <span th:text="${me.emailAddress()}"></span></li>
-            <li>Type: <span th:text="${me.type()}"></span></li>
-        </ul>
-
-        <hr>
-
-        <ul>
-            <li>
-                <a th:href="@{/profile}">Profile</a>
-            </li>
-            <li>
-                <a th:href="@{/logout}">Logout</a>
-            </li>
-        </ul>
+    <div class="d-flex justify-content-center gap-3">
+        <a th:href="@{/profile}" class="btn btn-primary px-4">Refresh</a>
+        <a th:href="@{/home}" class="btn btn-primary px-4">Home</a>
+        <a th:href="@{/logout}" class="btn btn-outline-danger px-4">Logout</a>
     </div>
-
 </section>
-
 </body>
 </html>
