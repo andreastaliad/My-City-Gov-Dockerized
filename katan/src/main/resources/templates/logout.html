@@ -9,22 +9,19 @@
 </head>
 
 <body>
-
 <header layout:fragment="header">
-    <h1>Office Hours <small>/ Logout</small></h1>
+    <h2>Logout</h2>
 </header>
 
 <section layout:fragment="main">
+        <p class="mb-4">Are you sure you want to log out?</p>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="btn btn-danger px-4">Log out</button>
+        </form>
 
-    <form th:action="@{/logout}" method="post">
-        <div class="mb-4">
-            <button type="submit" class="btn btn-primary">Log out</button>
-        </div>
-
-        <p><a th:href="@{/profile}">Profile</a></p>
-    </form>
-
+        <p class="mt-4">
+            <a th:href="@{/profile}">Back to my Profile</a>
+        </p>
 </section>
-
 </body>
 </html>
