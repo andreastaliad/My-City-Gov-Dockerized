@@ -1,0 +1,17 @@
+<div th:fragment="content">
+    <h4>Δημιουργία Αιτήματος</h4>
+
+    <form method="post" th:action="@{/requests}">
+        <div class="mb-3">
+            <label for="title">Τίτλος Αιτήματος</label>
+            <input id="title" type="text" name="title" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="description">Περιγραφή</label>
+            <textarea id="description" name="description" class="form-control" required></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-success">Υποβολή</button>
+    </form>
+</div>
