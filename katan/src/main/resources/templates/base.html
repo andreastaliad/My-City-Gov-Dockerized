@@ -25,6 +25,7 @@
         }
     </style>
 </head>
+
 <body>
 
 <header class="text-center p-4" layout:fragment="header"></header>
@@ -34,5 +35,22 @@
 <footer class="text-center p-4 mt-4" layout:fragment="footer">
     <small>&copy; 2025 My City Gov</small>
 </footer>
+<!-- script για το φόρτωμα φορμών στα tabs -->
+<script>
+    function loadContent(url, targetId) {
+        console.log("Button clicked:", url, targetId);
+
+        fetch(url, {
+            headers: { "X-Requested-With": "XMLHttpRequest" }
+        })
+            .then(response => response.text())
+            .then(html => {
+                console.log("HTML loaded:", html);
+                document.getElementById(targetId).innerHTML = html;
+            })
+            .catch(error => console.error("Error loading content:", error));
+    }
+</script>
+
 </body>
 </html>
