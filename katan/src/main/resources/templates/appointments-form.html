@@ -1,7 +1,7 @@
 <div th:fragment="content">
-<h4>Φόρμα Δημιουργίας Ραντεβού</h4>
+    <h4>Φόρμα Δημιουργίας Ραντεβού</h4>
 
-    <form method="post" th:action="@{/appointments}">
+    <form id="appointmentForm">
         <div class="mb-3">
             <label>Ημερομηνία</label>
             <input type="date" class="form-control" name="date" required>
