@@ -53,6 +53,7 @@
                 //αφού φορτώσει το fragment ξανακάνει attach handler
                 attachAppointmentFormHandler();
                 attachRequestFormHandler();
+                attachIssueFormHandler();
             })
             .catch(error => console.error("Error loading content:", error));
     }
@@ -108,6 +109,32 @@
                 .then(res => res.text())
                 .then(html => {
                     document.getElementById("requests").innerHTML = html;
+                });
+        });
+    }
+
+    //συνάρτηση για την αναφορά προβλημάτων
+    function attachIssueFormHandler() {
+        const form = document.getElementById("issueForm");
+        if (!form) return;
+
+        const token  = document.querySelector("meta[name='_csrf']").content;
+        const header = document.querySelector("meta[name='_csrf_header']").content;
+
+        form.addEventListener("submit", function(e) {
+            e.preventDefault();
+
+            fetch("/issues", {
+                method: "POST",
+                body: new FormData(form),
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                    [header]: token
+                }
+            })
+                .then(res => res.text())
+                .then(html => {
+                    document.getElementById("issues").innerHTML = html;
                 });
         });
     }
