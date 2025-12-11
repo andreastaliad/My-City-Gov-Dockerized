@@ -1,17 +1,17 @@
 <div th:fragment="content">
-    <h4>Δημιουργία Αιτήματος</h4>
+    <h4>Φόρμα Δημιουργίας Αιτήματος</h4>
 
-    <form method="post" th:action="@{/requests}">
+    <form id="requestForm">
         <div class="mb-3">
-            <label for="title">Τίτλος Αιτήματος</label>
-            <input id="title" type="text" name="title" class="form-control" required>
+            <label>Τίτλος</label>
+            <input class="form-control" name="title" required>
         </div>
 
         <div class="mb-3">
-            <label for="description">Περιγραφή</label>
-            <textarea id="description" name="description" class="form-control" required></textarea>
+            <label>Περιγραφή</label>
+            <textarea class="form-control" name="description" required></textarea>
         </div>
 
-        <button type="submit" class="btn btn-success">Υποβολή</button>
+        <button class="btn btn-success" type="submit">Αποθήκευση</button>
     </form>
 </div>
