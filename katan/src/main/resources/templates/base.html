@@ -52,6 +52,7 @@
                 document.getElementById(targetId).innerHTML = html;
                 //αφού φορτώσει το fragment ξανακάνει attach handler
                 attachAppointmentFormHandler();
+                attachRequestFormHandler();
             })
             .catch(error => console.error("Error loading content:", error));
     }
@@ -74,7 +75,7 @@
                 body: new FormData(form),
                 headers: {
                     "X-Requested-With": "XMLHttpRequest",
-                    [header]: token   //η λύση για το 403
+                    [header]: token //η λύση για το 403
                 }
             })
                 .then(res => res.text())
@@ -84,6 +85,33 @@
                 .catch(err => console.error(err));
         });
     }
+
+    //συνάρτηση για τη δημιουργία αιτημάτων
+    function attachRequestFormHandler() {
+        const form = document.getElementById("requestForm");
+        if (!form) return;
+
+        const token  = document.querySelector("meta[name='_csrf']").content;
+        const header = document.querySelector("meta[name='_csrf_header']").content;
+
+        form.addEventListener("submit", function(e) {
+            e.preventDefault();
+
+            fetch("/requests", {
+                method: "POST",
+                body: new FormData(form),
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                    [header]: token
+                }
+            })
+                .then(res => res.text())
+                .then(html => {
+                    document.getElementById("requests").innerHTML = html;
+                });
+        });
+    }
+
 </script>
 
 </body>
