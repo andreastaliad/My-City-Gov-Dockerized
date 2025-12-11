@@ -5,6 +5,10 @@
     lang="en"
     dir="ltr">
 <head>
+    <!--για την αποφυγή error 403 όταν κάνουμε submit -->
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+
     <meta charset="UTF-8" />
     <title layout:title-pattern="$CONTENT_TITLE - Office Hours - Harokopio University of Athens">HUA</title>
 
@@ -35,20 +39,50 @@
 <footer class="text-center p-4 mt-4" layout:fragment="footer">
     <small>&copy; 2025 My City Gov</small>
 </footer>
-<!-- script για το φόρτωμα φορμών στα tabs -->
-<script>
-    function loadContent(url, targetId) {
-        console.log("Button clicked:", url, targetId);
 
+<!-- script για τις φόρμες στα tabs -->
+<script>
+    //συνάρτηση για το φόρτωμα
+    function loadContent(url, targetId) {
         fetch(url, {
             headers: { "X-Requested-With": "XMLHttpRequest" }
         })
             .then(response => response.text())
             .then(html => {
-                console.log("HTML loaded:", html);
                 document.getElementById(targetId).innerHTML = html;
+                //αφού φορτώσει το fragment ξανακάνει attach handler
+                attachAppointmentFormHandler();
             })
             .catch(error => console.error("Error loading content:", error));
+    }
+
+    //συνάρτηση για τη δημιουργία ραντεβού
+    function attachAppointmentFormHandler() {
+
+        const form = document.getElementById("appointmentForm");
+        if (!form) return;
+
+        //παίρνει το csrf token από τα meta tags
+        const token = document.querySelector("meta[name='_csrf']").content;
+        const header = document.querySelector("meta[name='_csrf_header']").content;
+
+        form.addEventListener("submit", function(e) {
+            e.preventDefault();
+
+            fetch("/appointments", {
+                method: "POST",
+                body: new FormData(form),
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                    [header]: token   //η λύση για το 403
+                }
+            })
+                .then(res => res.text())
+                .then(html => {
+                    document.getElementById("appointments").innerHTML = html;
+                })
+                .catch(err => console.error(err));
+        });
     }
 </script>
 
