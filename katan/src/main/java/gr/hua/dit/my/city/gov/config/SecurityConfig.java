@@ -29,7 +29,8 @@ public class SecurityConfig {
         http
             .securityMatcher("/**")
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/login", "/register").permitAll() // Public
+                .requestMatchers("/", "/login", "/register", "/register/verify-otp").permitAll() // Public
+                .requestMatchers("/auth/send-otp", "/auth/verify-otp").permitAll() // OTP endpoints - public
                 .requestMatchers("/profile", "/logout").authenticated() // Private
                 .anyRequest().permitAll() // the rest
             )
