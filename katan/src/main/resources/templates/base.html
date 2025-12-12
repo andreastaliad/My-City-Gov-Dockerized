@@ -5,10 +5,6 @@
     lang="en"
     dir="ltr">
 <head>
-    <!--για την αποφυγή error 403 όταν κάνουμε submit -->
-    <meta name="_csrf" th:content="${_csrf.token}">
-    <meta name="_csrf_header" th:content="${_csrf.headerName}">
-
     <meta charset="UTF-8" />
     <title layout:title-pattern="$CONTENT_TITLE - Office Hours - Harokopio University of Athens">HUA</title>
 
@@ -64,10 +60,6 @@
         const form = document.getElementById("appointmentForm");
         if (!form) return;
 
-        //παίρνει το csrf token από τα meta tags
-        const token = document.querySelector("meta[name='_csrf']").content;
-        const header = document.querySelector("meta[name='_csrf_header']").content;
-
         form.addEventListener("submit", function(e) {
             e.preventDefault();
 
@@ -75,8 +67,7 @@
                 method: "POST",
                 body: new FormData(form),
                 headers: {
-                    "X-Requested-With": "XMLHttpRequest",
-                    [header]: token //η λύση για το 403
+                    "X-Requested-With": "XMLHttpRequest"
                 }
             })
                 .then(res => res.text())
@@ -92,9 +83,6 @@
         const form = document.getElementById("requestForm");
         if (!form) return;
 
-        const token  = document.querySelector("meta[name='_csrf']").content;
-        const header = document.querySelector("meta[name='_csrf_header']").content;
-
         form.addEventListener("submit", function(e) {
             e.preventDefault();
 
@@ -102,8 +90,7 @@
                 method: "POST",
                 body: new FormData(form),
                 headers: {
-                    "X-Requested-With": "XMLHttpRequest",
-                    [header]: token
+                    "X-Requested-With": "XMLHttpRequest"
                 }
             })
                 .then(res => res.text())
@@ -118,9 +105,6 @@
         const form = document.getElementById("issueForm");
         if (!form) return;
 
-        const token  = document.querySelector("meta[name='_csrf']").content;
-        const header = document.querySelector("meta[name='_csrf_header']").content;
-
         form.addEventListener("submit", function(e) {
             e.preventDefault();
 
@@ -128,8 +112,7 @@
                 method: "POST",
                 body: new FormData(form),
                 headers: {
-                    "X-Requested-With": "XMLHttpRequest",
-                    [header]: token
+                    "X-Requested-With": "XMLHttpRequest"
                 }
             })
                 .then(res => res.text())
