@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html
+    xmlns:th="https://www.thymeleaf.org"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{base}"
+    lang="en"
+    dir="ltr">
+<head>
+    <title>Verify Phone Number</title>
+</head>
+<body>
+
+<main layout:fragment="main">
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Verify Your Phone Number</h2>
+
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <p class="text-center mb-4">
+                            An OTP has been sent to <strong th:text="${phoneNumber}"></strong>
+                        </p>
+
+                        <form id="otpForm" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+                            <!-- OTP INPUT -->
+                            <div class="mb-3">
+                                <label for="otp" class="form-label">Enter OTP:</label>
+                                <input 
+                                    type="text" 
+                                    id="otp" 
+                                    name="otp" 
+                                    class="form-control text-center" 
+                                    placeholder="******"
+                                    maxlength="6"
+                                    inputmode="numeric"
+                                    required
+                                    autofocus/>
+                            </div>
+
+                            <!-- ERROR MESSAGE -->
+                            <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+                                <span th:text="${errorMessage}"></span>
+                            </div>
+
+                            <!-- SUBMIT -->
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">Verify OTP</button>
+                            </div>
+                        </form>
+
+                        <hr class="my-4"/>
+
+                        <p class="text-center text-muted small">
+                            Didn't receive the code? 
+                            <a href="#" onclick="resendOtp()">Resend OTP</a>
+                        </p>
+
+                        <p class="text-center mt-3">
+                            <a th:href="@{/register}" class="text-decoration-none">Back to Registration</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        // Handle OTP submission via AJAX
+        document.getElementById('otpForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const otp = document.getElementById('otp').value.trim();
+            const phoneNumber = /*[[${phoneNumber}]]*/ '';
+            
+            console.log('Submitting OTP verification:', { phoneNumber: phoneNumber, otp: otp });
+            
+            fetch('/auth/verify-otp', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('input[name="_csrf"]').value
+                },
+                body: JSON.stringify({
+                    phone: phoneNumber,
+                    otp: otp
+                })
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                if (response.ok) {
+                    // OTP verified successfully - submit form to complete registration
+                    console.log('OTP verified, submitting registration form');
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '/register/verify-otp';
+                    
+                    // Add CSRF token
+                    const csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = document.querySelector('input[name="_csrf"]').name;
+                    csrfInput.value = document.querySelector('input[name="_csrf"]').value;
+                    form.appendChild(csrfInput);
+                    
+                    document.body.appendChild(form);
+                    form.submit();
+                } else {
+                    return response.text().then(text => {
+                        console.log('Error response:', text);
+                        const alertElement = document.querySelector('.alert');
+                        if (alertElement) {
+                            alertElement.innerText = text;
+                            alertElement.style.display = 'block';
+                        } else {
+                            alert(text);
+                        }
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+                alert('An error occurred. Please try again.');
+            });
+        });
+
+        function resendOtp() {
+            const phoneNumber = /*[[${phoneNumber}]]*/ '';
+            
+            console.log('Resending OTP to:', phoneNumber);
+            
+            fetch('/auth/send-otp?phoneNumber=' + encodeURIComponent(phoneNumber), {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('input[name="_csrf"]').value
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('OTP sent successfully!');
+                    document.getElementById('otp').value = '';
+                    document.getElementById('otp').focus();
+                } else {
+                    alert('Failed to resend OTP. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            });
+        }
+    </script>
+</main>
+
+</body>
+</html>
