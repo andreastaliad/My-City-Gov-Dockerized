@@ -1,9 +1,6 @@
 package gr.hua.dit.my.city.gov.core.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 @Entity
 public class Issue {
@@ -15,6 +12,10 @@ public class Issue {
     private String title;
     private String description;
     private String location;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private IssueStatus status = IssueStatus.REPORTED;
 
     //Getters-Setters
     public Issue() {}
@@ -45,5 +46,13 @@ public class Issue {
     }
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public IssueStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(IssueStatus status) {
+        this.status = status;
     }
 }
