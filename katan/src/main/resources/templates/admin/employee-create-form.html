@@ -1,0 +1,26 @@
+<div th:fragment="content">
+  <h4>Δημιουργία Υπαλλήλου</h4>
+
+  <form>
+    <div class="mb-3">
+      <label>Email</label>
+      <input class="form-control">
+    </div>
+
+    <div class="mb-3">
+      <label>Όνομα</label>
+      <input class="form-control">
+    </div>
+
+    <div class="mb-3">
+      <label>Επώνυμο</label>
+      <input class="form-control">
+    </div>
+
+    <button type="button"
+            class="btn btn-secondary"
+            onclick="loadContent('/admin/employees','adminTab')">
+      Πίσω
+    </button>
+  </form>
+</div>
