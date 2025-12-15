@@ -2,6 +2,7 @@
 <html
         xmlns:th="https://www.thymeleaf.org"
         xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        xmlns:sec="https://www.thymeleaf.org/extras/spring-security"
         layout:decorate="~{base}">
 <head>
     <title>MyCityGov-Home</title>
@@ -47,6 +48,11 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" th:href="@{/logout}">Logout</a>
+                    </li>
+                    <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                        <a class="nav-link" th:href="@{/admin/home}">
+                            Admin
+                        </a>
                     </li>
                 </ul>
             </div>
