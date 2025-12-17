@@ -12,17 +12,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminUiController {
 
+    //admin dashboard
     @GetMapping("/home")
     public String home() {
         return "admin/admin-home";
     }
 
+    //employee list
     @GetMapping("/employees")
     public String employees(Model model) {
         model.addAttribute("employees", List.of());
         return "admin/employees-list :: content";
     }
 
+    //employee creation form
     @GetMapping("/employees/new")
     public String newEmployee() {
         return "admin/employee-create-form :: content";
