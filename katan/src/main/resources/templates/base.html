@@ -50,6 +50,7 @@
                 attachAppointmentFormHandler();
                 attachRequestFormHandler();
                 attachIssueFormHandler();
+                attachEmployeeFormHandler();
             })
             .catch(error => console.error("Error loading content:", error));
     }
@@ -122,6 +123,36 @@
         });
     }
 
+    //συνάρτηση για τη φόρμα υπαλλήλων
+    function attachEmployeeFormHandler() {
+        const form = document.getElementById("employeeForm");
+        if (!form) return;
+
+        form.addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+
+            const csrfToken = form.querySelector("input[name='_csrf']").value;
+
+            fetch("/admin/employees", {
+                method: "POST",
+                body: formData,
+                headers: {
+                    "X-CSRF-TOKEN": csrfToken,
+                    "X-Requested-With": "XMLHttpRequest"
+                }
+            })
+                .then(res => {
+                    if (!res.ok) throw new Error("Αποτυχία δημιουργίας υπαλλήλου");
+                    return res.text();
+                })
+                .then(html => {
+                    document.getElementById("adminTab").innerHTML = html;
+                })
+                .catch(err => alert(err.message));
+        });
+    }
 </script>
 
 </body>
