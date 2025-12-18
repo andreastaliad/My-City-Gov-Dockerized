@@ -5,6 +5,9 @@ public class EmployeeCreateRequest {
     private String firstName;
     private String lastName;
     private String password;
+    private String afm;
+    private String amka;
+    private String phoneNumber;
 
     public String getEmailAddress() {
         return emailAddress;
@@ -32,5 +35,26 @@ public class EmployeeCreateRequest {
     }
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getAfm() {
+        return afm;
+    }
+    public void setAfm(String afm) {
+        this.afm = afm;
+    }
+
+    public String getAmka() {
+        return amka;
+    }
+    public void setAmka(String amka) {
+        this.amka = amka;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 }

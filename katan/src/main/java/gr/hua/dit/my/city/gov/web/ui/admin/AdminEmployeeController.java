@@ -20,12 +20,8 @@ public class AdminEmployeeController {
     //Κάνει την εγγραφή
     @PostMapping("/employees")
     public String createEmployee(EmployeeCreateRequest request) {
-        employeeRegistrationService.registerEmployee(
-                request.getEmailAddress(),
-                request.getFirstName(),
-                request.getLastName(),
-                request.getPassword()
-        );
+        employeeRegistrationService.registerEmployee(request);
         return "admin/employee-success :: content";
     }
+
 }

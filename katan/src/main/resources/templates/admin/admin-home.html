@@ -3,28 +3,63 @@
         xmlns:th="https://www.thymeleaf.org"
         xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
         layout:decorate="~{base}">
+<head>
+    <style>
+        /* ΜΟΝΟ για admin περιεχόμενο */
+        .admin-wide {
+            max-width: 100% !important;
+            width: 100%;
+            overflow-x: auto;
+            text-align: left;
+        }
+
+        .admin-wide table {
+            width: 100%;
+            white-space: nowrap;
+        }
+    </style>
+</head>
 
 <body>
 
 <div layout:fragment="main">
-
     <div class="container mt-5">
+
+        <h2 class="mb-4 text-center">Admin Dashboard</h2>
+
+        <!-- ADMIN TABS -->
         <ul class="nav nav-tabs">
 
             <li class="nav-item">
-                <button class="nav-link active"
-                        onclick="loadContent('/admin/employees','adminTab')">
+                <button class="nav-link"
+                        onclick="loadContent('/admin/users/employees','adminTab')">
                     Υπάλληλοι
+                </button>
+            </li>
+
+            <li class="nav-item">
+                <button class="nav-link"
+                        onclick="loadContent('/admin/users/citizens','adminTab')">
+                    Πολίτες
+                </button>
+            </li>
+
+            <li class="nav-item ms-auto">
+                <button class="nav-link text-success fw-semibold"
+                        onclick="loadContent('/admin/employees/new','adminTab')">
+                    + Δημιουργία Υπαλλήλου
                 </button>
             </li>
 
         </ul>
 
-        <div id="adminTab" class="p-4 border bg-white">
-            <!-- φορτώνει περιεχόμενο -->
+        <!-- DYNAMIC CONTENT -->
+        <div id="adminTab"
+             class="p-4 border border-top-0 bg-white admin-wide">
+            <!-- εδώ φορτώνουν τα fragments -->
         </div>
-    </div>
 
+    </div>
 </div>
 
 </body>

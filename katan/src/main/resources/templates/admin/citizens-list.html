@@ -1,0 +1,28 @@
+<div th:fragment="content">
+
+    <h4>Πολίτες</h4>
+
+    <table class="table table-striped table-hover table-sm text-center">
+        <thead>
+        <tr>
+            <th>Email</th>
+            <th>Όνομα</th>
+            <th>Επώνυμο</th>
+            <th>ΑΦΜ</th>
+            <th>ΑΜΚΑ</th>
+            <th>Τηλέφωνο</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="u : ${citizens}">
+            <td th:text="${u.emailAddress}"></td>
+            <td th:text="${u.firstName}"></td>
+            <td th:text="${u.lastName}"></td>
+            <td th:text="${u.afm}"></td>
+            <td th:text="${u.amka}"></td>
+            <td th:text="${u.phoneNumber}"></td>
+        </tr>
+        </tbody>
+    </table>
+
+</div>

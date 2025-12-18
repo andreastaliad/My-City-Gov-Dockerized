@@ -1,7 +1,7 @@
 package gr.hua.dit.my.city.gov.web.ui.admin;
 
+import gr.hua.dit.my.city.gov.core.service.model.AdminUserService;
 import org.springframework.ui.Model;
-import java.util.List;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,17 +12,38 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminUiController {
 
+    private final AdminUserService adminUserService;
+
+    public AdminUiController(AdminUserService adminUserService) {
+        this.adminUserService = adminUserService;
+    }
+
     //admin dashboard
     @GetMapping("/home")
     public String home() {
         return "admin/admin-home";
     }
 
-    //employee list
-    @GetMapping("/employees")
+    //menu επιλογης
+    @GetMapping("/users/menu")
+    public String usersMenu() {
+        return "admin/users-menu :: content";
+    }
+
+    // πίνακας υπαλλήλων
+    @GetMapping("/users/employees")
     public String employees(Model model) {
-        model.addAttribute("employees", List.of());
+        model.addAttribute("employees",
+                adminUserService.getAllEmployees());
         return "admin/employees-list :: content";
+    }
+
+    // πίνακας πολιτών
+    @GetMapping("/users/citizens")
+    public String citizens(Model model) {
+        model.addAttribute("citizens",
+                adminUserService.getAllCitizens());
+        return "admin/citizens-list :: content";
     }
 
     //employee creation form

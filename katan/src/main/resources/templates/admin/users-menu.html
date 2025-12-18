@@ -1,0 +1,19 @@
+<div th:fragment="content" class="text-center">
+
+    <h4 class="mb-4">Διαχείριση Χρηστών</h4>
+
+    <div class="d-flex justify-content-center gap-3">
+
+        <button class="btn btn-outline-primary"
+                onclick="loadContent('/admin/users/employees','adminTab')">
+            Υπάλληλοι
+        </button>
+
+        <button class="btn btn-outline-secondary"
+                onclick="loadContent('/admin/users/citizens','adminTab')">
+            Πολίτες
+        </button>
+
+    </div>
+
+</div>

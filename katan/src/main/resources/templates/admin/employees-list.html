@@ -1,23 +1,28 @@
 <div th:fragment="content">
-    <h4>Υπάλληλοι Δήμου</h4>
 
-    <button class="btn btn-success mb-3"
-            onclick="loadContent('/admin/employees/new','adminTab')">
-        Προσθήκη Υπαλλήλου
-    </button>
+  <h4>Υπάλληλοι</h4>
 
-    <table class="table">
-        <thead>
-        <tr>
-            <th>Email</th>
-            <th>Όνομα</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="e : ${employees}">
-            <td th:text="${e.emailAddress}"></td>
-            <td th:text="${e.firstName} + ' ' + ${e.lastName}"></td>
-        </tr>
-        </tbody>
-    </table>
+  <table class="table table-striped table-hover table-sm text-center">
+    <thead>
+    <tr>
+      <th>Email</th>
+      <th>Όνομα</th>
+      <th>Επώνυμο</th>
+      <th>ΑΦΜ</th>
+      <th>ΑΜΚΑ</th>
+      <th>Τηλέφωνο</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="u : ${employees}">
+      <td th:text="${u.emailAddress}"></td>
+      <td th:text="${u.firstName}"></td>
+      <td th:text="${u.lastName}"></td>
+      <td th:text="${u.afm}"></td>
+      <td th:text="${u.amka}"></td>
+      <td th:text="${u.phoneNumber}"></td>
+    </tr>
+    </tbody>
+  </table>
+
 </div>
