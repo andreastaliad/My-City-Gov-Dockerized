@@ -6,16 +6,40 @@
 <head>
     <style>
         /* ΜΟΝΟ για admin περιεχόμενο */
+        .admin-tabs {
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            overflow-y: hidden;
+            white-space: nowrap;
+        }
+
+        .admin-tabs .nav-link {
+            font-weight: 500;
+            color: #0d6efd;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .admin-tabs .nav-link.active {
+            background-color: #f8f9fa;
+            color: #000;
+            font-weight: 600;
+        }
+
         .admin-wide {
-            max-width: 100% !important;
+            max-width: 100%;
             width: 100%;
             overflow-x: auto;
             text-align: left;
         }
 
-        .admin-wide table {
-            width: 100%;
-            white-space: nowrap;
+        /* Overview cards */
+        .overview-card {
+            transition: transform .15s ease, box-shadow .15s ease;
+        }
+
+        .overview-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,.08);
         }
     </style>
 </head>
@@ -25,10 +49,17 @@
 <div layout:fragment="main">
     <div class="container mt-5">
 
-        <h2 class="mb-4 text-center">Admin Dashboard</h2>
+        <h2 class="mb-4 text-center fw-semibold">Admin Dashboard</h2>
 
         <!-- ADMIN TABS -->
-        <ul class="nav nav-tabs">
+        <ul class="nav nav-tabs admin-tabs mb-0">
+
+            <li class="nav-item">
+                <button class="nav-link active"
+                        onclick="loadContent('/admin/overview','adminTab')">
+                    Επισκόπηση
+                </button>
+            </li>
 
             <li class="nav-item">
                 <button class="nav-link"
@@ -44,6 +75,27 @@
                 </button>
             </li>
 
+            <li class="nav-item">
+                <button class="nav-link"
+                        onclick="loadContent('/admin/requests','adminTab')">
+                    Αιτήματα
+                </button>
+            </li>
+
+            <li class="nav-item">
+                <button class="nav-link"
+                        onclick="loadContent('/admin/appointments','adminTab')">
+                    Ραντεβού
+                </button>
+            </li>
+
+            <li class="nav-item">
+                <button class="nav-link"
+                        onclick="loadContent('/admin/issues','adminTab')">
+                    Προβλήματα
+                </button>
+            </li>
+
             <li class="nav-item ms-auto">
                 <button class="nav-link text-success fw-semibold"
                         onclick="loadContent('/admin/employees/new','adminTab')">
@@ -55,7 +107,7 @@
 
         <!-- DYNAMIC CONTENT -->
         <div id="adminTab"
-             class="p-4 border border-top-0 bg-white admin-wide">
+             class="p-4 border border-top-0 bg-white admin-wide rounded-bottom">
             <!-- εδώ φορτώνουν τα fragments -->
         </div>
 

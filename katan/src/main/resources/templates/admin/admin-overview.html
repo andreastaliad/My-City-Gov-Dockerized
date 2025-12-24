@@ -1,0 +1,57 @@
+<div th:fragment="content">
+
+  <h4 class="mb-4">Επισκόπηση Συστήματος</h4>
+
+  <div class="row g-4">
+
+    <div class="col-md-3">
+      <div class="card overview-card text-center h-100">
+        <div class="card-body">
+          <div class="text-muted">Πολίτες</div>
+          <div class="fs-2 fw-bold text-primary">1</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card overview-card text-center h-100">
+        <div class="card-body">
+          <div class="text-muted">Υπάλληλοι</div>
+          <div class="fs-2 fw-bold text-success">3</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card overview-card text-center h-100">
+        <div class="card-body">
+          <div class="text-muted">Αιτήματα</div>
+          <div class="fs-2 fw-bold text-warning">2</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card overview-card text-center h-100">
+        <div class="card-body">
+          <div class="text-muted">Ραντεβού</div>
+          <div class="fs-2 fw-bold text-danger">3</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card overview-card text-center h-100">
+        <div class="card-body">
+          <div class="text-muted">Προβλήματα</div>
+          <div class="fs-2 fw-bold text-danger"
+               th:text="${issuesCount}">
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+

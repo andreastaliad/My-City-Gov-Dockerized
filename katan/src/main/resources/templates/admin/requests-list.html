@@ -1,0 +1,23 @@
+<div th:fragment="content">
+
+  <h4>Αιτήματα Πολιτών</h4>
+
+  <table class="table table-striped">
+    <thead>
+    <tr>
+      <th>ID</th>
+      <th>Τίτλος</th>
+      <th>Περιγραφή</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr th:each="r : ${requests}">
+      <td th:text="${r.id}"></td>
+      <td th:text="${r.title}"></td>
+      <td th:text="${r.description}"></td>
+    </tr>
+    </tbody>
+  </table>
+
+</div>

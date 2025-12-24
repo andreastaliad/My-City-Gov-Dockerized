@@ -1,0 +1,27 @@
+<div th:fragment="content">
+
+    <h4>Ραντεβού Πολιτών</h4>
+
+    <table class="table table-striped table-hover">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Ημερομηνία</th>
+            <th>Ώρα</th>
+            <th>Υπηρεσία</th>
+            <th>Πολίτης</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr th:each="a : ${appointments}">
+            <td th:text="${a.id}"></td>
+            <td th:text="${a.date}"></td>
+            <td th:text="${a.time}"></td>
+            <td th:text="${a.service}"></td>
+            <td th:text="${a.citizen.emailAddress}"></td>
+        </tr>
+        </tbody>
+    </table>
+
+</div>

@@ -1,0 +1,24 @@
+<div th:fragment="content">
+
+    <h4>Αναφορές Προβλημάτων</h4>
+
+    <table class="table table-striped table-bordered">
+        <thead>
+        <tr>
+            <th>Τίτλος</th>
+            <th>Περιγραφή</th>
+            <th>Πολίτης</th>
+            <th>Ημερομηνία</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="i : ${issues}">
+            <td th:text="${i.title}"></td>
+            <td th:text="${i.description}"></td>
+            <td th:text="${i.citizen.emailAddress}"></td>
+            <td th:text="${#temporals.format(i.createdAt,'dd/MM/yyyy')}"></td>
+        </tr>
+        </tbody>
+    </table>
+
+</div>

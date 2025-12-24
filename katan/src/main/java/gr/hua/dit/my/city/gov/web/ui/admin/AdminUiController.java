@@ -1,5 +1,8 @@
 package gr.hua.dit.my.city.gov.web.ui.admin;
 
+import gr.hua.dit.my.city.gov.core.repository.AppointmentRepository;
+import gr.hua.dit.my.city.gov.core.repository.IssueRepository;
+import gr.hua.dit.my.city.gov.core.repository.RequestRepository;
 import gr.hua.dit.my.city.gov.core.service.model.AdminUserService;
 import org.springframework.ui.Model;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -13,9 +16,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class AdminUiController {
 
     private final AdminUserService adminUserService;
+    private final RequestRepository requestRepository;
+    private final AppointmentRepository appointmentRepository;
+    private final IssueRepository issueRepository;
 
-    public AdminUiController(AdminUserService adminUserService) {
+    public AdminUiController(AdminUserService adminUserService, RequestRepository requestRepository, AppointmentRepository appointmentRepository, IssueRepository issueRepository) {
         this.adminUserService = adminUserService;
+        this.requestRepository = requestRepository;
+        this.appointmentRepository = appointmentRepository;
+        this.issueRepository = issueRepository;
     }
 
     //admin dashboard
@@ -44,6 +53,48 @@ public class AdminUiController {
         model.addAttribute("citizens",
                 adminUserService.getAllCitizens());
         return "admin/citizens-list :: content";
+    }
+
+    //πίνακας αιτημάτων
+    @GetMapping("/requests")
+    public String adminRequests(Model model) {
+        model.addAttribute("requests", requestRepository.findAll());
+        return "admin/requests-list :: content";
+    }
+
+    //πίνακας ραντεβού
+    @GetMapping("/appointments")
+    public String adminAppointments(Model model) {
+        model.addAttribute("appointments", appointmentRepository.findAll());
+        return "admin/appointments-list :: content";
+    }
+
+    //πίνακας προβλημάτων
+    @GetMapping("/issues")
+    public String adminIssues(Model model) {
+        model.addAttribute("issues", issueRepository.findAll());
+        return "admin/issues-list :: content";
+    }
+
+    //admin overview
+    @GetMapping("/overview")
+    public String overview(Model model) {
+        model.addAttribute("citizenCount",
+                adminUserService.getAllCitizens().size());
+
+        model.addAttribute("employeeCount",
+                adminUserService.getAllEmployees().size());
+
+        model.addAttribute("requestCount",
+                requestRepository.count());
+
+        model.addAttribute("appointmentCount",
+                appointmentRepository.count());
+
+        model.addAttribute("issuesCount",
+                issueRepository.count());
+
+        return "admin/admin-overview :: content";
     }
 
     //employee creation form
