@@ -1,6 +1,41 @@
 <div th:fragment="content">
 
-    <h4>Αναφορές Προβλημάτων</h4>
+    <h4>Προβλήματα</h4>
+
+    <!-- Φίλτρα -->
+    <div class="mb-3">
+        <button class="btn btn-outline-secondary btn-sm"
+                onclick="loadContent('/admin/issues','adminTab')">
+            Όλα
+        </button>
+
+        <button class="btn btn-outline-warning btn-sm"
+                onclick="loadContent('/admin/issues?status=REPORTED','adminTab')">
+            Εκκρεμή
+        </button>
+
+        <button class="btn btn-outline-warning btn-sm"
+                onclick="loadContent('/admin/issues?status=SEEN','adminTab')">
+            Λήφθηκαν
+        </button>
+
+        <button class="btn btn-outline-warning btn-sm"
+                onclick="loadContent('/admin/issues?status=FIXING','adminTab')">
+            Σε εξέλιξη
+        </button>
+
+        <button class="btn btn-outline-info btn-sm"
+                onclick="loadContent('/admin/issues?status=FIXED','adminTab')">
+            Ολοκληρωμένα
+        </button>
+
+        <button class="btn btn-outline-success btn-sm"
+                onclick="loadContent('/admin/issues?status=REJECTED','adminTab')">
+            Απορριφθέντα
+        </button>
+    </div>
+
+    <div id="issueAlert"></div>
 
     <table class="table table-striped table-bordered">
         <thead>
@@ -10,6 +45,7 @@
             <th>Περιγραφή</th>
             <th>Τοποθεσία</th>
             <th>Κατάσταση</th>
+            <th>Ενέργεια</th>
         </tr>
         </thead>
         <tbody>
@@ -18,9 +54,22 @@
             <td th:text="${i.title}"></td>
             <td th:text="${i.description}"></td>
             <td th:text="${i.location}"></td>
-            <td th:text="${i.status}"></td>
+            <td colspan="2">
+                <form th:action="@{/admin/{id}/status(id=${i.id})}" method="post" onsubmit="event.preventDefault(); submitIssueStatus(this);" class="d-flex gap-2 align-items-center">
+                    <select name="status" class="form-select form-select-sm w-auto">
+                        <option th:each="s : ${statuses}"
+                                th:value="${s}"
+                                th:text="${s}"
+                                th:selected="${s == i.status}">
+                        </option>
+                    </select>
+
+                    <button type="submit" class="btn btn-sm btn-primary">
+                        Αποθήκευση
+                    </button>
+                </form>
+            </td>
         </tr>
         </tbody>
     </table>
-
 </div>

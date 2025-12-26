@@ -69,13 +69,6 @@ public class AdminUiController {
         return "admin/appointments-list :: content";
     }
 
-    //πίνακας προβλημάτων
-    @GetMapping("/issues")
-    public String adminIssues(Model model) {
-        model.addAttribute("issues", issueRepository.findAll());
-        return "admin/issues-list :: content";
-    }
-
     //admin overview
     @GetMapping("/overview")
     public String overview(Model model) {
