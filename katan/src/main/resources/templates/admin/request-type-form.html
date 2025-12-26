@@ -1,0 +1,33 @@
+<div th:fragment="content">
+
+    <h4>Νέος Τύπος Αιτήματος</h4>
+
+    <form th:action="@{/admin/request-types}"
+          method="post"
+          onsubmit="event.preventDefault(); submitRequestType(this);">
+
+    <div class="mb-3">
+            <label>Όνομα</label>
+            <input class="form-control" name="name" required>
+        </div>
+
+        <div class="mb-3">
+            <label>Περιγραφή</label>
+            <textarea class="form-control" name="description"></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label>Υπηρεσία</label>
+            <input class="form-control" name="service" required>
+        </div>
+
+        <button class="btn btn-success" type="submit">Αποθήκευση</button>
+
+        <button class="btn btn-secondary"
+                type="button"
+                onclick="loadContent('/admin/request-types','adminTab')">
+            Πίσω
+        </button>
+
+    </form>
+</div>

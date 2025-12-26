@@ -1,0 +1,39 @@
+<div th:fragment="content">
+
+    <h4>Τύποι Αιτημάτων</h4>
+
+    <button class="btn btn-success mb-3"
+            onclick="loadContent('/admin/request-types/new','adminTab')">
+        + Νέος Τύπος
+    </button>
+
+    <table class="table table-striped table-bordered">
+        <thead>
+        <tr>
+            <th>Όνομα</th>
+            <th>Περιγραφή</th>
+            <th>Υπηρεσία</th>
+            <th>Ενεργός</th>
+            <th>Ενέργεια</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="t : ${types}">
+            <td th:text="${t.name}"></td>
+            <td th:text="${t.description}"></td>
+            <td th:text="${t.service}"></td>
+            <td th:text="${t.active ? 'Ναι' : 'Όχι'}"></td>
+            <td>
+                <form th:action="@{/admin/request-types/{id}/toggle(id=${t.id})}"
+                      method="post"
+                      onsubmit="event.preventDefault(); submitRequestTypeToggle(this);">
+                    <button class="btn btn-sm btn-outline-primary">
+                        Εναλλαγή
+                    </button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+</div>

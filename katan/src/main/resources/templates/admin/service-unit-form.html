@@ -1,0 +1,27 @@
+<div th:fragment="content">
+
+    <h4>Νέα Υπηρεσία Δήμου</h4>
+
+    <form th:action="@{/admin/service-units}"
+          method="post"
+          onsubmit="event.preventDefault(); submitServiceUnit(this);"
+          class="mt-3">
+
+        <div class="mb-3">
+            <label class="form-label">Όνομα</label>
+            <input type="text" name="name" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Περιγραφή</label>
+            <textarea name="description" class="form-control" rows="3"></textarea>
+        </div>
+
+        <button class="btn btn-success">Αποθήκευση</button>
+        <button type="button"
+                class="btn btn-secondary ms-2"
+                onclick="loadContent('/admin/service-units','adminTab')">
+            Ακύρωση
+        </button>
+    </form>
+</div>

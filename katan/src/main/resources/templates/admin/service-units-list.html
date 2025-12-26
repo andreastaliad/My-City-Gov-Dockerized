@@ -1,0 +1,45 @@
+<div th:fragment="content">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4>Υπηρεσίες Δήμου</h4>
+
+        <button class="btn btn-sm btn-success"
+                onclick="loadContent('/admin/service-units/new','adminTab')">
+            + Νέα Υπηρεσία
+        </button>
+    </div>
+
+    <table class="table table-striped table-bordered">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Όνομα</th>
+            <th>Περιγραφή</th>
+            <th>Κατάσταση</th>
+            <th>Ενέργεια</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="s : ${serviceUnits}">
+            <td th:text="${s.id}"></td>
+            <td th:text="${s.name}"></td>
+            <td th:text="${s.description}"></td>
+
+            <td>
+                <span th:if="${s.active}" class="badge bg-success">Ενεργή</span>
+                <span th:unless="${s.active}" class="badge bg-secondary">Ανενεργή</span>
+            </td>
+
+            <td>
+                <form th:action="@{/admin/service-units/{id}/toggle(id=${s.id})}"
+                      method="post"
+                      onsubmit="event.preventDefault(); submitToggle(this);">
+                    <button class="btn btn-sm btn-outline-primary">
+                        Αλλαγή
+                    </button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
