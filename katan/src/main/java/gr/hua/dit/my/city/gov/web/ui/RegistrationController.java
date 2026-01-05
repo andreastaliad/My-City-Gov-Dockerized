@@ -5,6 +5,7 @@ import gr.hua.dit.my.city.gov.core.model.PersonType;
 import gr.hua.dit.my.city.gov.core.port.PhoneNumberPort;
 import gr.hua.dit.my.city.gov.core.port.SmsNotificationPort;
 import gr.hua.dit.my.city.gov.core.port.impl.dto.PhoneNumberValidationResult;
+import gr.hua.dit.my.city.gov.core.service.EmailSender;
 import gr.hua.dit.my.city.gov.core.service.OtpService;
 import gr.hua.dit.my.city.gov.core.service.PersonService;
 
@@ -30,17 +31,21 @@ public class RegistrationController {
     private final OtpService otpService;
     private final SmsNotificationPort smsNotificationPort;
     private final PhoneNumberPort phoneNumberPort;
+    private final EmailSender emailSender;
 
-    public RegistrationController(final PersonService personService, final OtpService otpService, 
-                                   final SmsNotificationPort smsNotificationPort, final PhoneNumberPort phoneNumberPort) {
+    public RegistrationController(final PersonService personService, final OtpService otpService,
+                                   final SmsNotificationPort smsNotificationPort, final PhoneNumberPort phoneNumberPort,
+                                   final EmailSender emailSender) {
         if (personService == null) throw new NullPointerException();
         if (otpService == null) throw new NullPointerException();
         if (smsNotificationPort == null) throw new NullPointerException();
         if (phoneNumberPort == null) throw new NullPointerException();
+        if (emailSender == null) throw new NullPointerException();
         this.personService = personService;
         this.otpService = otpService;
         this.smsNotificationPort = smsNotificationPort;
         this.phoneNumberPort = phoneNumberPort;
+        this.emailSender = emailSender;
     }
 
     @GetMapping("/register")
@@ -208,6 +213,9 @@ public class RegistrationController {
                     "You have successfully registered for My City Gov. Use your email (%s) to log in.", 
                     emailAddress);
                 this.smsNotificationPort.sendSms(phoneNumber, content);
+
+                // Also send a simple confirmation email via Nylas
+                this.emailSender.sendAccountCreatedEmail(emailAddress);
             }
             
             // Clear session - user can now log in
