@@ -24,42 +24,41 @@
             <tbody>
             <th:block th:each="request : ${requests}">
                 <tr>
-                    <td th:text="${request.title}"></td>
-                    <td th:text="${request.description}"></td>
-                    <td>
-                        <span th:if="${request.attachmentKey == null || #strings.isEmpty(request.attachmentKey)}">
-                            -
-                        </span>
-                        <span th:if="${request.attachmentKey != null && !#strings.isEmpty(request.attachmentKey)}">
-                            <span th:text="${#lists.size(#strings.listSplit(request.attachmentKey, ','))}"></span>
-                            αρχείο(α)
-                        </span>
-                    </td>
-                    <td>
-                        <button class="btn btn-link p-0" type="button" data-toggle-details="true"
-                                th:onclick="|toggleRowDetails('req-details-' + ${request.id}, this)|">
-                            more
-                        </button>
-                    </td>
-                </tr>
-                <tr th:id="${'req-details-' + request.id}"
-                    data-detail-row="true"
-                    style="display:none;">
                     <td colspan="4">
-                        <h6>Λεπτομέρειες αιτήματος</h6>
-                        <p><strong>Τίτλος:</strong> <span th:text="${request.title}"></span></p>
-                        <p><strong>Περιγραφή:</strong> <span th:text="${request.description}"></span></p>
+                        <div class="border rounded p-3 bg-light text-start">
+                            <p class="mb-1"><strong>Τίτλος:</strong> <span th:text="${request.title}"></span></p>
+                            <p class="mb-2"><strong>Περιγραφή:</strong> <span th:text="${request.description}"></span></p>
 
-                        <h6>Συνημμένα αρχεία</h6>
-                        <div th:if="${request.attachmentKey == null || #strings.isEmpty(request.attachmentKey)}">
-                            <p>Δεν υπάρχουν συνημμένα.</p>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <div>
+                                    <span th:if="${request.attachmentKey == null || #strings.isEmpty(request.attachmentKey)}">
+                                        Δεν υπάρχουν συνημμένα.
+                                    </span>
+                                    <span th:if="${request.attachmentKey != null && !#strings.isEmpty(request.attachmentKey)}">
+                                        <span th:text="${#lists.size(#strings.listSplit(request.attachmentKey, ','))}"></span>
+                                        αρχείο(α)
+                                    </span>
+                                </div>
+                                <button class="btn btn-link p-0" type="button" data-toggle-details="true"
+                                        th:onclick="|toggleRowDetails('req-details-' + ${request.id}, this)|">
+                                    more
+                                </button>
+                            </div>
+
+                            <div th:id="${'req-details-' + request.id}"
+                                 style="display:none;" class="mt-3 pt-3 border-top">
+                                <h6 class="mb-2">Συνημμένα αρχεία</h6>
+                                <div th:if="${request.attachmentKey == null || #strings.isEmpty(request.attachmentKey)}">
+                                    <p class="mb-0">Δεν υπάρχουν συνημμένα.</p>
+                                </div>
+                                <ul class="mb-0" th:if="${request.attachmentKey != null && !#strings.isEmpty(request.attachmentKey)}">
+                                    <li th:each="key, iter : ${#strings.listSplit(request.attachmentKey, ',')}">
+                                        <a th:href="@{|/my/requests/${request.id}/attachments/${iter.index}|}"
+                                           th:text="${key.substring(key.lastIndexOf('-') + 1)}"></a>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
-                        <ul th:if="${request.attachmentKey != null && !#strings.isEmpty(request.attachmentKey)}">
-                            <li th:each="key, iter : ${#strings.listSplit(request.attachmentKey, ',')}">
-                                <a th:href="@{|/my/requests/${request.id}/attachments/${iter.index}|}"
-                                   th:text="${key.substring(key.lastIndexOf('-') + 1)}"></a>
-                            </li>
-                        </ul>
                     </td>
                 </tr>
             </th:block>

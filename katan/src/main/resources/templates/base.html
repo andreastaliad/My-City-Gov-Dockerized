@@ -150,13 +150,18 @@
         });
     }
 
-    // generic function to show/hide a specific details row, allowing multiple open
+    // generic function to show/hide a specific details section (row or inner box)
     function toggleRowDetails(rowId, buttonElement) {
-        const row = document.getElementById(rowId);
-        if (!row) return;
+        const element = document.getElementById(rowId);
+        if (!element) return;
 
-        const isHidden = row.style.display === "" || row.style.display === "none";
-        row.style.display = isHidden ? "table-row" : "none";
+        const isHidden = element.style.display === "" || element.style.display === "none";
+
+        if (element.tagName === 'TR') {
+            element.style.display = isHidden ? 'table-row' : 'none';
+        } else {
+            element.style.display = isHidden ? 'block' : 'none';
+        }
 
         if (buttonElement) {
             buttonElement.textContent = isHidden ? 'less' : 'more';
