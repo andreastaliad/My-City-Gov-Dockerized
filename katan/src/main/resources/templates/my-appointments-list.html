@@ -1,0 +1,51 @@
+<div th:fragment="content">
+    <h4>Τα ραντεβού μου</h4>
+
+    <div class="mb-3">
+        <button class="btn btn-primary" onclick="loadContent('/appointments/form', 'appointments')">
+            Κλείσιμο νέου ραντεβού
+        </button>
+    </div>
+
+    <div th:if="${#lists.isEmpty(appointments)}">
+        <p>Δεν έχετε κλείσει ακόμα ραντεβού.</p>
+    </div>
+
+    <div th:if="${!#lists.isEmpty(appointments)}">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Ημερομηνία</th>
+                <th>Ώρα</th>
+                <th>Υπηρεσία</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <th:block th:each="app : ${appointments}">
+                <tr>
+                    <td th:text="${app.date}"></td>
+                    <td th:text="${app.time}"></td>
+                    <td th:text="${app.service}"></td>
+                    <td>
+                        <button class="btn btn-link p-0" type="button" data-toggle-details="true"
+                                th:attr="onclick='toggleRowDetails(\'app-details-' + '[[${app.id}]]\', this)'">
+                            more
+                        </button>
+                    </td>
+                </tr>
+                <tr th:id="${'app-details-' + app.id}"
+                    data-detail-row="true"
+                    style="display:none;">
+                    <td colspan="4">
+                        <h6>Λεπτομέρειες ραντεβού</h6>
+                        <p><strong>Ημερομηνία:</strong> <span th:text="${app.date}"></span></p>
+                        <p><strong>Ώρα:</strong> <span th:text="${app.time}"></span></p>
+                        <p><strong>Υπηρεσία:</strong> <span th:text="${app.service}"></span></p>
+                    </td>
+                </tr>
+            </th:block>
+            </tbody>
+        </table>
+    </div>
+</div>

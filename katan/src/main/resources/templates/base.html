@@ -149,6 +149,19 @@
                 });
         });
     }
+
+    // generic function to show/hide a specific details row, allowing multiple open
+    function toggleRowDetails(rowId, buttonElement) {
+        const row = document.getElementById(rowId);
+        if (!row) return;
+
+        const isHidden = row.style.display === "" || row.style.display === "none";
+        row.style.display = isHidden ? "table-row" : "none";
+
+        if (buttonElement) {
+            buttonElement.textContent = isHidden ? 'less' : 'more';
+        }
+    }
 </script>
 <script th:src="@{/js/admin.js}"></script>
 </body>

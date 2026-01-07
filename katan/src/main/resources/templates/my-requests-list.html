@@ -1,0 +1,69 @@
+<div th:fragment="content">
+    <h4>Τα αιτήματά μου</h4>
+
+    <div class="mb-3">
+        <button class="btn btn-primary" onclick="loadContent('/requests/form', 'requests')">
+            Δημιουργία νέου αιτήματος
+        </button>
+    </div>
+
+    <div th:if="${#lists.isEmpty(requests)}">
+        <p>Δεν έχετε καταχωρήσει ακόμα αιτήματα.</p>
+    </div>
+
+    <div th:if="${!#lists.isEmpty(requests)}">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Τίτλος</th>
+                <th>Περιγραφή</th>
+                <th>Συνημμένα</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <th:block th:each="request : ${requests}">
+                <tr>
+                    <td th:text="${request.title}"></td>
+                    <td th:text="${request.description}"></td>
+                    <td>
+                        <span th:if="${request.attachmentKey == null || #strings.isEmpty(request.attachmentKey)}">
+                            -
+                        </span>
+                        <span th:if="${request.attachmentKey != null && !#strings.isEmpty(request.attachmentKey)}">
+                            <span th:text="${#lists.size(#strings.listSplit(request.attachmentKey, ','))}"></span>
+                            αρχείο(α)
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-link p-0" type="button" data-toggle-details="true"
+                                th:onclick="|toggleRowDetails('req-details-' + ${request.id}, this)|">
+                            more
+                        </button>
+                    </td>
+                </tr>
+                <tr th:id="${'req-details-' + request.id}"
+                    data-detail-row="true"
+                    style="display:none;">
+                    <td colspan="4">
+                        <h6>Λεπτομέρειες αιτήματος</h6>
+                        <p><strong>Τίτλος:</strong> <span th:text="${request.title}"></span></p>
+                        <p><strong>Περιγραφή:</strong> <span th:text="${request.description}"></span></p>
+
+                        <h6>Συνημμένα αρχεία</h6>
+                        <div th:if="${request.attachmentKey == null || #strings.isEmpty(request.attachmentKey)}">
+                            <p>Δεν υπάρχουν συνημμένα.</p>
+                        </div>
+                        <ul th:if="${request.attachmentKey != null && !#strings.isEmpty(request.attachmentKey)}">
+                            <li th:each="key, iter : ${#strings.listSplit(request.attachmentKey, ',')}">
+                                <a th:href="@{|/my/requests/${request.id}/attachments/${iter.index}|}"
+                                   th:text="${key.substring(key.lastIndexOf('-') + 1)}"></a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+            </th:block>
+            </tbody>
+        </table>
+    </div>
+</div>

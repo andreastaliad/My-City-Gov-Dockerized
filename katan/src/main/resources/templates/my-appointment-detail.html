@@ -1,0 +1,19 @@
+<div th:fragment="content">
+    <h4>Λεπτομέρειες Ραντεβού</h4>
+
+    <dl class="row">
+        <dt class="col-sm-3">ID</dt>
+        <dd class="col-sm-9" th:text="${appointment.id}"></dd>
+
+        <dt class="col-sm-3">Ημερομηνία</dt>
+        <dd class="col-sm-9" th:text="${appointment.date}"></dd>
+
+        <dt class="col-sm-3">Ώρα</dt>
+        <dd class="col-sm-9" th:text="${appointment.time}"></dd>
+
+        <dt class="col-sm-3">Υπηρεσία</dt>
+        <dd class="col-sm-9" th:text="${appointment.service}"></dd>
+    </dl>
+
+    <button class="btn btn-secondary mt-3" onclick="loadContent('/my/appointments','appointments')">Πίσω στα ραντεβού μου</button>
+</div>

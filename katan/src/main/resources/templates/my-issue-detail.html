@@ -1,0 +1,22 @@
+<div th:fragment="content">
+    <h4>Λεπτομέρειες Προβλήματος</h4>
+
+    <dl class="row">
+        <dt class="col-sm-3">ID</dt>
+        <dd class="col-sm-9" th:text="${issue.id}"></dd>
+
+        <dt class="col-sm-3">Τίτλος</dt>
+        <dd class="col-sm-9" th:text="${issue.title}"></dd>
+
+        <dt class="col-sm-3">Περιγραφή</dt>
+        <dd class="col-sm-9" th:text="${issue.description}"></dd>
+
+        <dt class="col-sm-3">Τοποθεσία</dt>
+        <dd class="col-sm-9" th:text="${issue.location}"></dd>
+
+        <dt class="col-sm-3">Κατάσταση</dt>
+        <dd class="col-sm-9" th:text="${issue.status}"></dd>
+    </dl>
+
+    <button class="btn btn-secondary mt-3" onclick="loadContent('/my/issues','issues')">Πίσω στα προβλήματά μου</button>
+</div>

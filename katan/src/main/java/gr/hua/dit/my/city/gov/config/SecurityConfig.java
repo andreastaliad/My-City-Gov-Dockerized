@@ -32,7 +32,7 @@ public class SecurityConfig {
                 .requestMatchers("/", "/login", "/register", "/register/verify-otp").permitAll() // Public
                 .requestMatchers("/auth/send-otp", "/auth/verify-otp").permitAll() // OTP endpoints - public
                 .requestMatchers("/admin/**").hasRole("ADMIN") // Admin endpoints - admin only
-                .requestMatchers("/profile", "/logout").authenticated() // Private
+                .requestMatchers("/profile", "/logout", "/my/**").authenticated() // Private
                 .anyRequest().permitAll() // the rest
             )
             .formLogin(form -> form

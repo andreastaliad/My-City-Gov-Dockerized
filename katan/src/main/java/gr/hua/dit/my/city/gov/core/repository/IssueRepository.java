@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface IssueRepository extends JpaRepository<Issue, Long> {
     List<Issue> findByStatus(IssueStatus status);
+
+    List<Issue> findByPersonId(Long personId);
 }

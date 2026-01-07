@@ -13,6 +13,9 @@ public class Issue {
     private String description;
     private String location;
 
+    // ID of the person (citizen) who reported this issue
+    private Long personId;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private IssueStatus status = IssueStatus.REPORTED;
@@ -46,6 +49,14 @@ public class Issue {
     }
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public Long getPersonId() {
+        return personId;
+    }
+
+    public void setPersonId(Long personId) {
+        this.personId = personId;
     }
 
     public IssueStatus getStatus() {

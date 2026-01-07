@@ -14,6 +14,10 @@ public class Request {
     private String title;
     private String description;
 
+    // ID of the person (citizen) who created this request
+    private Long personId;
+
+    // Comma-separated MinIO object keys for uploaded attachments
     private String attachmentKey;
     public Request() {}
 
@@ -37,6 +41,14 @@ public class Request {
     }
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Long getPersonId() {
+        return personId;
+    }
+
+    public void setPersonId(Long personId) {
+        this.personId = personId;
     }
 
     public String getAttachmentKey() {

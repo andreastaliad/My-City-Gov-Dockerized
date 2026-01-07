@@ -1,0 +1,26 @@
+<div th:fragment="content">
+    <h4>Λεπτομέρειες Αιτήματος</h4>
+
+    <dl class="row">
+        <dt class="col-sm-3">ID</dt>
+        <dd class="col-sm-9" th:text="${request.id}"></dd>
+
+        <dt class="col-sm-3">Τίτλος</dt>
+        <dd class="col-sm-9" th:text="${request.title}"></dd>
+
+        <dt class="col-sm-3">Περιγραφή</dt>
+        <dd class="col-sm-9" th:text="${request.description}"></dd>
+    </dl>
+
+    <h5>Συνημμένα αρχεία</h5>
+    <div th:if="${#lists.isEmpty(attachments)}">
+        <p>Δεν υπάρχουν συνημμένα.</p>
+    </div>
+    <ul th:if="${!#lists.isEmpty(attachments)}">
+        <li th:each="key : ${attachments}">
+            <span th:text="${#strings.substringAfter(key, '-')} ?: ${key}"></span>
+        </li>
+    </ul>
+
+    <button class="btn btn-secondary mt-3" onclick="loadContent('/my/requests','requests')">Πίσω στα αιτήματά μου</button>
+</div>
