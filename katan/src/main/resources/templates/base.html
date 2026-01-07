@@ -90,8 +90,29 @@
         const form = document.getElementById("requestForm");
         if (!form) return;
 
+        const MAX_FILE_SIZE_MB = 10; // keep in sync with application.properties
+        const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+        const MAX_TOTAL_SIZE_MB = 20;
+        const MAX_TOTAL_SIZE_BYTES = MAX_TOTAL_SIZE_MB * 1024 * 1024;
+
         form.addEventListener("submit", function(e) {
             e.preventDefault();
+
+            const fileInput = form.querySelector('input[name="attachments"]');
+            if (fileInput && fileInput.files && fileInput.files.length > 0) {
+                let totalSize = 0;
+                for (const file of fileInput.files) {
+                    if (file.size > MAX_FILE_SIZE_BYTES) {
+                        alert("Κάθε αρχείο δεν πρέπει να ξεπερνά τα " + MAX_FILE_SIZE_MB + "MB.");
+                        return;
+                    }
+                    totalSize += file.size;
+                }
+                if (totalSize > MAX_TOTAL_SIZE_BYTES) {
+                    alert("Το συνολικό μέγεθος των αρχείων δεν πρέπει να ξεπερνά τα " + MAX_TOTAL_SIZE_MB + "MB.");
+                    return;
+                }
+            }
 
             fetch("/requests", {
                 method: "POST",

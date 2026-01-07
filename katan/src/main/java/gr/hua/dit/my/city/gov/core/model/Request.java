@@ -13,6 +13,8 @@ public class Request {
 
     private String title;
     private String description;
+
+    private String attachmentKey;
     public Request() {}
 
     //Getters-Setters
@@ -35,5 +37,13 @@ public class Request {
     }
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getAttachmentKey() {
+        return attachmentKey;
+    }
+
+    public void setAttachmentKey(String attachmentKey) {
+        this.attachmentKey = attachmentKey;
     }
 }
