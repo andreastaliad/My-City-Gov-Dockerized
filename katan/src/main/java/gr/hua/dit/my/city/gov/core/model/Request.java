@@ -1,9 +1,6 @@
 package gr.hua.dit.my.city.gov.core.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 @Entity
 public class Request {
@@ -16,6 +13,15 @@ public class Request {
 
     // ID of the person (citizen) who created this request
     private Long personId;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "request_type_id", nullable = false)
+    private RequestType requestType;
+
+    // Citizen is represented by Person where Person.type == CITIZEN
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "citizen_id", nullable = false)
+    private Person citizen;
 
     // Comma-separated MinIO object keys for uploaded attachments
     private String attachmentKey;
@@ -43,6 +49,9 @@ public class Request {
         this.description = description;
     }
 
+    public RequestType getRequestType() { return requestType; }
+    public void setRequestType(RequestType requestType) { this.requestType = requestType; }
+
     public Long getPersonId() {
         return personId;
     }
@@ -58,4 +67,7 @@ public class Request {
     public void setAttachmentKey(String attachmentKey) {
         this.attachmentKey = attachmentKey;
     }
+
+    public Person getCitizen() { return citizen; }
+    public void setCitizen(Person citizen) { this.citizen = citizen; }
 }

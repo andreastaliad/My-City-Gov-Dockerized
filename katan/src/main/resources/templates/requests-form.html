@@ -18,6 +18,18 @@
             <input class="form-control" type="file" name="attachments" multiple>
         </div>
 
+        <div class="mb-3">
+            <label class="form-label">Τύπος Αιτήματος</label>
+            <select class="form-select" name="requestTypeId">
+                <option value="">(προαιρετικό)</option>
+                <option th:each="t : ${requestTypes}"
+                        th:value="${t.id}"
+                        th:text="${t.name}">
+                </option>
+            </select>
+
+        </div>
+
         <button class="btn btn-success" type="submit">Αποθήκευση</button>
         <button type="button" class="btn btn-secondary ms-2" onclick="loadContent('/my/requests','requests')">
             Επιστροφή

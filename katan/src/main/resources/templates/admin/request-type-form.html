@@ -12,22 +12,25 @@
         </div>
 
         <div class="mb-3">
-            <label>Περιγραφή</label>
-            <textarea class="form-control" name="description"></textarea>
+            <label class="form-label">Περιγραφή</label>
+            <textarea class="form-control" name="description" rows="3"></textarea>
         </div>
 
         <div class="mb-3">
-            <label>Υπηρεσία</label>
-            <input class="form-control" name="service" required>
+            <label class="form-label">Υπηρεσία</label>
+            <select class="form-select" name="serviceUnitId" required>
+                <option value="">Επιλογή Υπηρεσίας</option>
+                <option th:each="u : ${serviceUnits}" th:value="${u.id}" th:text="${u.name}"></option>
+            </select>
         </div>
 
-        <button class="btn btn-success" type="submit">Αποθήκευση</button>
-
-        <button class="btn btn-secondary"
-                type="button"
-                onclick="loadContent('/admin/request-types','adminTab')">
-            Πίσω
-        </button>
-
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-success">
+                Αποθήκευση
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="loadContent('/admin/request-types', 'adminTab')">
+                Πίσω
+            </button>
+        </div>
     </form>
 </div>

@@ -1,11 +1,10 @@
 <div th:fragment="content">
-
-    <h4>Τύποι Αιτημάτων</h4>
-
-    <button class="btn btn-success mb-3"
-            onclick="loadContent('/admin/request-types/new','adminTab')">
-        + Νέος Τύπος
-    </button>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4>Τύποι Αιτημάτων</h4>
+        <button class="btn btn-success" onclick="loadContent('/admin/request-types/new', 'adminTab')">
+            Νέος Τύπος
+        </button>
+    </div>
 
     <table class="table table-striped table-bordered">
         <thead>
@@ -21,13 +20,12 @@
         <tr th:each="t : ${types}">
             <td th:text="${t.name}"></td>
             <td th:text="${t.description}"></td>
-            <td th:text="${t.service}"></td>
+            <td th:text="${t.serviceUnit != null ? t.serviceUnit.name : '-'}"></td>
             <td th:text="${t.active ? 'Ναι' : 'Όχι'}"></td>
             <td>
                 <form th:action="@{/admin/request-types/{id}/toggle(id=${t.id})}"
-                      method="post"
-                      onsubmit="event.preventDefault(); submitRequestTypeToggle(this);">
-                    <button class="btn btn-sm btn-outline-primary">
+                      onsubmit="submitToggle(this); return false;">
+                    <button type="submit" class="btn btn-primary btn-sm">
                         Εναλλαγή
                     </button>
                 </form>

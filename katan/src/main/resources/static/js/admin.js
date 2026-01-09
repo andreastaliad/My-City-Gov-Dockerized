@@ -1,21 +1,30 @@
-/**
- * Δημιουργία νέου Τύπου Αιτήματος
- */
+function csrfHeaders() {
+    const tokenMeta = document.querySelector('meta[name="_csrf"]');
+    const headerMeta = document.querySelector('meta[name="_csrf_header"]');
+    const headers = {};
+    if (tokenMeta && headerMeta) headers[headerMeta.content] = tokenMeta.content;
+    return headers;
+}
+
 function submitRequestType(form) {
     fetch(form.action, {
         method: 'POST',
         body: new FormData(form),
-        credentials: 'same-origin'
+        credentials: 'same-origin',
+        headers: csrfHeaders()
     })
-        .then(res => {
-            if (!res.ok) throw new Error("Save failed");
+        .then(async res => {
+            if (!res.ok) throw new Error(await res.text());
             return res.text();
         })
         .then(html => {
             document.getElementById("adminTab").innerHTML = html;
             alert("Ο τύπος αιτήματος δημιουργήθηκε επιτυχώς");
         })
-        .catch(() => alert("Σφάλμα αποθήκευσης τύπου αιτήματος"));
+        .catch(err => {
+            console.error(err);
+            alert("Σφάλμα αποθήκευσης τύπου αιτήματος");
+        });
 }
 
 function confirmAction(message, callback) {
@@ -28,8 +37,13 @@ function submitServiceUnit(form) {
     fetch(form.action, {
         method: 'POST',
         body: new FormData(form),
-        credentials: 'same-origin'
-    }).then(() => {
+        credentials: 'same-origin',
+        headers: csrfHeaders()
+    }).then(res => {
+        if (!res.ok) {
+            alert("Αποτυχία αποθήκευσης υπηρεσίας");
+            return;
+        }
         loadContent('/admin/service-units', 'adminTab');
     });
 }
@@ -37,9 +51,14 @@ function submitServiceUnit(form) {
 function submitToggle(form) {
     fetch(form.action, {
         method: 'POST',
-        credentials: 'same-origin'
-    }).then(() => {
-        loadContent('/admin/service-units', 'adminTab');
+        credentials: 'same-origin',
+        headers: csrfHeaders()
+    }).then(res => {
+        if (!res.ok) {
+            alert("Αποτυχία εναλλαγής τύπου αιτήματος");
+            return;
+        }
+        loadContent('/admin/request-types', 'adminTab');
     });
 }
 

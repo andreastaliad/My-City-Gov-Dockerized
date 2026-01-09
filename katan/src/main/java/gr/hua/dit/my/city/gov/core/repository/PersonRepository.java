@@ -25,4 +25,6 @@ public interface PersonRepository extends JpaRepository<Person, Long> {
     boolean existsByPhoneNumber(final String phoneNumber);
 
     boolean existsByAfmIgnoreCase(final String afm);
+
+    long countByType(PersonType type);
 }

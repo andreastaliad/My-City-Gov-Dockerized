@@ -1,10 +1,6 @@
 package gr.hua.dit.my.city.gov.core.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 @Entity
 public class RequestType {
@@ -18,8 +14,9 @@ public class RequestType {
 
     private String description;
 
-    @Column(nullable = false)
-    private String service; // π.χ. Καθαριότητα, Τεχνική
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "service_unit_id", nullable = false)
+    private ServiceUnit serviceUnit;
 
     @Column(nullable = false)
     private boolean active = true;
@@ -35,9 +32,13 @@ public class RequestType {
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
 
-    public String getService() { return service; }
-    public void setService(String service) { this.service = service; }
+    public ServiceUnit getServiceUnit() {
+        return serviceUnit;
+    }
 
+    public void setServiceUnit(ServiceUnit serviceUnit) {
+        this.serviceUnit = serviceUnit;
+    }
     public boolean isActive() { return active; }
     public void setActive(boolean active) { this.active = active; }
 }

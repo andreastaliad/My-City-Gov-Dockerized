@@ -1,0 +1,61 @@
+<div>
+    <h4 th:text="'Ωράρια ραντεβού: ' + ${serviceUnit.name}"></h4>
+
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+    <form th:action="@{|/admin/service-units/${serviceUnit.id}/schedules|}" method="post" class="row g-2">
+        <div class="col-md-3">
+            <label class="form-label">Ημέρα</label>
+            <select class="form-select" name="dayOfWeek" required>
+                <option th:each="d : ${days}" th:value="${d}" th:text="${d}"></option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label">Έναρξη</label>
+            <input type="time" class="form-control" name="startTime" required>
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label">Λήξη</label>
+            <input type="time" class="form-control" name="endTime" required>
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label">Slot (min)</label>
+            <input type="number" class="form-control" name="slotMinutes" min="5" max="180" value="15" required>
+        </div>
+
+        <div class="col-md-3 d-flex align-items-end">
+            <button class="btn btn-primary w-100" type="submit">Προσθήκη</button>
+        </div>
+    </form>
+
+    <hr/>
+
+    <table class="table table-sm">
+        <thead>
+        <tr>
+            <th>Ημέρα</th><th>Από</th><th>Έως</th><th>Slot</th><th>Active</th><th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="s : ${schedules}">
+            <td th:text="${s.dayOfWeek}"></td>
+            <td th:text="${s.startTime}"></td>
+            <td th:text="${s.endTime}"></td>
+            <td th:text="${s.slotMinutes}"></td>
+            <td th:text="${s.active}"></td>
+            <td class="text-end">
+                <form th:action="@{|/admin/service-units/${serviceUnit.id}/schedules/${s.id}/toggle|}" method="post" style="display:inline">
+                    <button class="btn btn-outline-secondary btn-sm" type="submit">Toggle</button>
+                </form>
+                <form th:action="@{|/admin/service-units/${serviceUnit.id}/schedules/${s.id}/delete|}" method="post" style="display:inline">
+                    <button class="btn btn-outline-danger btn-sm" type="submit">Delete</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
