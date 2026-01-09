@@ -14,8 +14,8 @@ public class Request {
     // ID of the person (citizen) who created this request
     private Long personId;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "request_type_id", nullable = false)
+    @ManyToOne(optional = true)
+    @JoinColumn(name = "request_type_id", nullable = true)
     private RequestType requestType;
 
     // Citizen is represented by Person where Person.type == CITIZEN

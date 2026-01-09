@@ -73,8 +73,6 @@ public class RequestsController {
             RequestType requestType = requestTypeRepository.findById(requestTypeId)
                     .orElseThrow(() -> new IllegalArgumentException("Invalid requestTypeId: " + requestTypeId));
             request.setRequestType(requestType);
-        } else {
-            throw new IllegalArgumentException("Request type is required");
         }
 
         if (attachments != null && attachments.length > 0) {
