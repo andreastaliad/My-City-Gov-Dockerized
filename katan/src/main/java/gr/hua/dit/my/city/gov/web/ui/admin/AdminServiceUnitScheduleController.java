@@ -35,7 +35,7 @@ public class AdminServiceUnitScheduleController {
         model.addAttribute("schedules", scheduleRepository.findByServiceUnitIdOrderByDayOfWeekAscStartTimeAsc(id));
         model.addAttribute("days", Arrays.asList(DayOfWeek.values()));
         model.addAttribute("scheduleForm", new ServiceUnitSchedule());
-        return "admin/fragments/service_unit_schedules";
+        return "admin/service_unit_schedule :: content";
     }
 
     @PostMapping("/{id}/schedules")

@@ -164,3 +164,49 @@ function submitRequestTypeToggle(form) {
         })
         .catch(() => alert("Σφάλμα επικοινωνίας με τον server"));
 }
+
+function submitServiceUnitToggle(form) {
+    fetch(form.action, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: csrfHeaders()
+    })
+        .then(res => {
+            if (!res.ok) {
+                alert("Αποτυχία αλλαγής κατάστασης υπηρεσίας");
+                return;
+            }
+            // ΜΕΝΕΙΣ ΣΤΟ ΙΔΙΟ TAB
+            loadContent('/admin/service-units', 'adminTab');
+        })
+        .catch(() => alert("Σφάλμα επικοινωνίας με τον server"));
+}
+
+function submitPostAndReload(form, reloadUrl) {
+    fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        credentials: 'same-origin',
+        headers: csrfHeaders()
+    })
+        .then(async res => {
+            if (!res.ok) throw new Error(await res.text());
+            return fetch(reloadUrl, { credentials: 'same-origin' });
+        })
+        .then(async res => {
+            if (!res.ok) throw new Error(await res.text());
+            return res.text();
+        })
+        .then(html => {
+            document.getElementById("adminTab").innerHTML = html;
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Αποτυχία ενέργειας");
+        });
+}
+
+function openSchedules(btn) {
+    const id = btn.getAttribute("data-id");
+    loadContent('/admin/service-units/' + id + '/schedules', 'adminTab');
+}
