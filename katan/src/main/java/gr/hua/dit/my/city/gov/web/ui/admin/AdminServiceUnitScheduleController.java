@@ -12,6 +12,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.DayOfWeek;
 import java.util.Arrays;
+import java.util.List;
 
 @Controller
 @RequestMapping("/admin/service-units")
@@ -62,21 +63,20 @@ public class AdminServiceUnitScheduleController {
             return "redirect:/admin/service-units/" + id + "/schedules";
         }
         // overlap check
-        var existing = scheduleRepository
-                .findByServiceUnitIdAndDayOfWeekAndActiveTrue(id, form.getDayOfWeek());
-
-        for (ServiceUnitSchedule s : existing) {
-            boolean overlap =
-                    form.getStartTime().isBefore(s.getEndTime()) &&
-                            form.getEndTime().isAfter(s.getStartTime());
-
-            if (overlap) {
-                ra.addFlashAttribute(
-                        "error",
-                        "Υπάρχει ήδη ωράριο που επικαλύπτεται για την ίδια ημέρα."
+        List<ServiceUnitSchedule> existing =
+                scheduleRepository.findByServiceUnitIdAndDayOfWeekAndActiveTrue(
+                        id, form.getDayOfWeek()
                 );
-                return "redirect:/admin/service-units/" + id + "/schedules";
-            }
+
+        boolean overlaps = existing.stream()
+                .anyMatch(existingSchedule ->
+                        form.getStartTime().isBefore(existingSchedule.getEndTime()) &&
+                                form.getEndTime().isAfter(existingSchedule.getStartTime())
+                );
+
+        if (overlaps) {
+            ra.addFlashAttribute("error", "Το ωράριο επικαλύπτεται με υπάρχον.");
+            return "redirect:/admin/service-units/" + id + "/schedules";
         }
 
         long totalMinutes =
