@@ -14,6 +14,8 @@ public class Appointment {
     private LocalTime time;
     private String service;
 
+    private Long serviceUnitId;
+
     // ID of the person (citizen) who booked this appointment
     private Long personId;
 
@@ -53,4 +55,7 @@ public class Appointment {
     public void setPersonId(Long personId) {
         this.personId = personId;
     }
+
+    public Long getServiceUnitId() {return serviceUnitId;}
+    public void setServiceUnitId(Long serviceUnitId) {this.serviceUnitId = serviceUnitId;}
 }

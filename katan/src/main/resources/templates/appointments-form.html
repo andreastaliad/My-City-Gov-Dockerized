@@ -4,20 +4,30 @@
     <form id="appointmentForm">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
         <div class="mb-3">
-            <label>Ημερομηνία</label>
-            <input type="date" class="form-control" name="date" required>
+            <label>Υπηρεσία</label>
+            <select class="form-select" name="serviceUnitId" id="serviceUnitId" required>
+                <option value="" selected>-- Επίλεξε υπηρεσία --</option>
+                <option th:each="su : ${serviceUnits}"
+                        th:value="${su.id}"
+                        th:text="${su.name}">
+                </option>
+            </select>
         </div>
+
+        <div class="mb-3">
+            <label>Ημερομηνία</label>
+            <select class="form-select" name="date" id="date" required>
+                <option value="" selected>-- Επίλεξε ημέρα--</option>
+            </select>
+        </div>
+
 
         <div class="mb-3">
             <label>Ώρα</label>
-            <input type="time" class="form-control" name="time" required>
+            <select class="form-select" name="time" id="time" required>
+                <option value="" selected>-- Επίλεξε ώρα --</option>
+            </select>
         </div>
-
-        <div class="mb-3">
-            <label>Υπηρεσία</label>
-            <input type="text" class="form-control" name="service" required>
-        </div>
-
         <button class="btn btn-success" type="submit">Αποθήκευση</button>
         <button type="button" class="btn btn-secondary ms-2" onclick="loadContent('/my/appointments','appointments')">
             Επιστροφή

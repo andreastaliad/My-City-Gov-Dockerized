@@ -20,8 +20,8 @@
 
         <div class="mb-3">
             <label class="form-label">Τύπος Αιτήματος</label>
-            <select class="form-select" name="requestTypeId">
-                <option value="">(προαιρετικό)</option>
+            <select class="form-select" name="requestTypeId" required>
+                <option value="" selected>(προαιρετικό)</option>
                 <option th:each="t : ${requestTypes}"
                         th:value="${t.id}"
                         th:text="${t.name}">

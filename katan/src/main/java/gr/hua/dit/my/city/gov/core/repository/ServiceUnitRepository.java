@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface ServiceUnitRepository extends JpaRepository<ServiceUnit, Long> {
     List<ServiceUnit> findByActiveTrue();
+    List<ServiceUnit> findByActiveTrueOrderByNameAsc();
 }
