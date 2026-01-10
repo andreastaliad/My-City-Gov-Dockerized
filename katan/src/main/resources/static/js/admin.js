@@ -190,23 +190,25 @@ function submitPostAndReload(form, reloadUrl) {
         headers: csrfHeaders()
     })
         .then(async res => {
-            if (!res.ok) throw new Error(await res.text());
-            return fetch(reloadUrl, { credentials: 'same-origin' });
+            if (!res.ok) {
+                const text = await res.text();
+                console.error("POST failed:", res.status, text);
+                throw new Error("POST failed");
+            }
+            // reload the tab content after successful action
+            return loadContent(reloadUrl, 'adminTab');
         })
-        .then(async res => {
-            if (!res.ok) throw new Error(await res.text());
-            return res.text();
-        })
-        .then(html => {
-            document.getElementById("adminTab").innerHTML = html;
-        })
-        .catch(err => {
-            console.error(err);
-            alert("Αποτυχία ενέργειας");
-        });
+        .catch(() => alert("Αποτυχία ενέργειας"));
 }
 
-function openSchedules(btn) {
-    const id = btn.getAttribute("data-id");
-    loadContent('/admin/service-units/' + id + '/schedules', 'adminTab');
+function submitScheduleAction(form) {
+    const idEl = document.getElementById("serviceUnitId");
+    if (!idEl) {
+        console.error("Missing #serviceUnitId");
+        alert("Αποτυχία ενέργειας");
+        return;
+    }
+    const sid = idEl.value;
+    submitPostAndReload(form, '/admin/service-units/' + sid + '/schedules');
 }
+

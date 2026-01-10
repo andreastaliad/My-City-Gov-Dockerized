@@ -31,9 +31,9 @@
             </td>
 
             <td>
-                <button class="btn btn-sm btn-info"
-                        th:attr="data-id=${s.id}"
-                        onclick="openSchedules(this)">
+                <button type="button"
+                        class="btn btn-info btn-sm"
+                        th:onclick="'loadContent(\'/admin/service-units/' + ${s.id} + '/schedules\', \'adminTab\')'">
                     Ωράρια
                 </button>
 

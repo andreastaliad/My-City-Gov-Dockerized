@@ -4,6 +4,7 @@ import gr.hua.dit.my.city.gov.core.model.ServiceUnit;
 import gr.hua.dit.my.city.gov.core.model.ServiceUnitSchedule;
 import gr.hua.dit.my.city.gov.core.repository.ServiceUnitRepository;
 import gr.hua.dit.my.city.gov.core.repository.ServiceUnitScheduleRepository;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,7 @@ import java.util.Arrays;
 
 @Controller
 @RequestMapping("/admin/service-units")
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminServiceUnitScheduleController {
 
     private final ServiceUnitRepository serviceUnitRepository;
@@ -35,7 +37,7 @@ public class AdminServiceUnitScheduleController {
         model.addAttribute("schedules", scheduleRepository.findByServiceUnitIdOrderByDayOfWeekAscStartTimeAsc(id));
         model.addAttribute("days", Arrays.asList(DayOfWeek.values()));
         model.addAttribute("scheduleForm", new ServiceUnitSchedule());
-        return "admin/service_unit_schedule :: content";
+        return "admin/service-unit-schedule :: content";
     }
 
     @PostMapping("/{id}/schedules")
@@ -57,6 +59,37 @@ public class AdminServiceUnitScheduleController {
         }
         if (form.getSlotMinutes() <= 0 || form.getSlotMinutes() > 180) {
             ra.addFlashAttribute("error", "Slot minutes μη έγκυρο.");
+            return "redirect:/admin/service-units/" + id + "/schedules";
+        }
+        // overlap check
+        var existing = scheduleRepository
+                .findByServiceUnitIdAndDayOfWeekAndActiveTrue(id, form.getDayOfWeek());
+
+        for (ServiceUnitSchedule s : existing) {
+            boolean overlap =
+                    form.getStartTime().isBefore(s.getEndTime()) &&
+                            form.getEndTime().isAfter(s.getStartTime());
+
+            if (overlap) {
+                ra.addFlashAttribute(
+                        "error",
+                        "Υπάρχει ήδη ωράριο που επικαλύπτεται για την ίδια ημέρα."
+                );
+                return "redirect:/admin/service-units/" + id + "/schedules";
+            }
+        }
+
+        long totalMinutes =
+                java.time.Duration.between(
+                        form.getStartTime(),
+                        form.getEndTime()
+                ).toMinutes();
+
+        if (totalMinutes % form.getSlotMinutes() != 0) {
+            ra.addFlashAttribute(
+                    "error",
+                    "Το slot δεν διαιρεί ακριβώς το ωράριο."
+            );
             return "redirect:/admin/service-units/" + id + "/schedules";
         }
 
