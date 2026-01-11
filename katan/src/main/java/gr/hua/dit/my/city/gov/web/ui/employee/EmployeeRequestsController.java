@@ -42,22 +42,30 @@ public class EmployeeRequestsController {
 
     @GetMapping("/employee/requests")
     public String myServiceRequests(Model model) {
-        Long personId = currentUserProvider.getCurrentUser() .map(CurrentUser::id) .orElse(null);
 
-        if (personId == null) { model.addAttribute("requests", List.of()); model.addAttribute("error", "Δεν βρέθηκε συνδεδεμένος χρήστης.");
-            return "employee/employee-requests-list :: content"; }
+        Long personId = currentUserProvider.getCurrentUser()
+                .map(CurrentUser::id)
+                .orElseThrow();
 
-        Person employee = personRepository.findById(personId) .orElseThrow(() -> new IllegalStateException("Person not found: " + personId));
-        // Προαιρετικό: επιβεβαίωση ότι είναι EMPLOYEE
-        if (employee.getType() != PersonType.EMPLOYEE) { model.addAttribute("requests", List.of()); model.addAttribute("error", "Μόνο υπάλληλοι έχουν πρόσβαση σε αυτή τη σελίδα.");
-            return "employee/employee-requests-list :: content"; }
+        Person employee = personRepository.findById(personId)
+                .orElseThrow();
 
-        if (employee.getServiceUnit() == null) { model.addAttribute("requests", List.of()); model.addAttribute("error", "Ο υπάλληλος δεν είναι αντιστοιχισμένος σε υπηρεσία.");
-            return "employee/employee-requests-list :: content"; }
+        if (employee.getServiceUnit() == null) {
+            model.addAttribute("requests", List.of());
+            model.addAttribute("error", "Δεν είστε αντιστοιχισμένος σε υπηρεσία");
+            return "employee/employee-requests-list :: content";
+        }
 
-        Long suId = employee.getServiceUnit().getId(); model.addAttribute("requests",
-                requestRepository.findByRequestType_ServiceUnit_IdOrderByCreatedAtDesc(suId));
-        return "employee/employee-requests-list :: content"; }
+        Long suId = employee.getServiceUnit().getId();
+
+        model.addAttribute(
+                "requests",
+                requestRepository
+                        .findByRequestType_ServiceUnit_IdOrderByCreatedAtDesc(suId)
+        );
+
+        return "employee/employee-requests-list :: content";
+    }
 
     @GetMapping
     public String listRequests(Model model) {

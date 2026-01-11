@@ -14,6 +14,7 @@ public class Appointment {
     private LocalTime time;
     private String service;
 
+    @Column(name = "service_unit_id")
     private Long serviceUnitId;
 
     // ID of the person (citizen) who booked this appointment

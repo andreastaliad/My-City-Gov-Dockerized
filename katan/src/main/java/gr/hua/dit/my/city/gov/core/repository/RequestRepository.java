@@ -11,6 +11,5 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
 	List<Request> findByRequestType_ServiceUnit_IdOrderByCreatedAtDesc(Long serviceUnitId);
 	long countByRequestType_ServiceUnit_Id(Long serviceUnitId);
 	List<Request> findByRequestType_ServiceUnit_IdOrderByIdDesc(Long serviceUnitId);
-
 }
 
