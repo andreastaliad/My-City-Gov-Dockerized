@@ -16,10 +16,7 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-/**
- * Periodically checks for upcoming appointments and sends a simple SMS reminder
- * about one hour before the appointment time, using the existing NOC SMS flow.
- */
+//check every minute for appointments in the next hour and send reminders
 @Service
 public class AppointmentReminderService {
 
@@ -40,11 +37,7 @@ public class AppointmentReminderService {
         this.emailSender = emailSender;
     }
 
-    /**
-     * Runs every minute and sends a reminder for appointments that are
-     * less than one hour from now (same date, 0-59 minutes away) and have
-     * not already received a reminder.
-     */
+    // if not already send and in within the next hour, send reminder
     @Scheduled(cron = "0 * * * * *")
     public void sendUpcomingAppointmentReminders() {
         // Correct Time Zone for reminders
@@ -73,8 +66,7 @@ public class AppointmentReminderService {
                 logger.debug("Reminder check for appointment {}: today={}, apptDate={}, apptTime={}, now={}, minutesUntil={}, alreadySent={}",
                     appointment.getId(), today, appointment.getDate(), apptTime, now, minutesUntil, appointment.isReminderSent());
 
-            // Send once when the appointment is in the next hour
-            // (0-59 minutes from now), but not in the past.
+            
             if (minutesUntil >= 0 && minutesUntil < 60) {
                 Long personId = appointment.getPersonId();
                 if (personId == null) {
