@@ -40,15 +40,14 @@ public class EmployeeRequestsController {
         this.emailSender = emailSender;
     }
 
-    @GetMapping("/employee/requests")
-    public String myServiceRequests(Model model) {
+    @GetMapping
+    public String listMyServiceRequests(Model model) {
 
         Long personId = currentUserProvider.getCurrentUser()
                 .map(CurrentUser::id)
                 .orElseThrow();
 
-        Person employee = personRepository.findById(personId)
-                .orElseThrow();
+        Person employee = personRepository.findById(personId).orElseThrow();
 
         if (employee.getServiceUnit() == null) {
             model.addAttribute("requests", List.of());
@@ -60,18 +59,10 @@ public class EmployeeRequestsController {
 
         model.addAttribute(
                 "requests",
-                requestRepository
-                        .findByRequestType_ServiceUnit_IdOrderByCreatedAtDesc(suId)
+                requestRepository.findByRequestType_ServiceUnit_IdOrderByCreatedAtDesc(suId)
         );
 
         return "employee/employee-requests-list :: content";
-    }
-
-    @GetMapping
-    public String listRequests(Model model) {
-        List<Request> requests = requestRepository.findAll();
-        model.addAttribute("requests", requests);
-        return "employee/employee-requests-list";
     }
 
     @PostMapping("/{id}/status")
@@ -79,6 +70,26 @@ public class EmployeeRequestsController {
                                @RequestParam RequestStatus status) {
 
         Request request = requestRepository.findById(id).orElseThrow();
+
+        // Security: ο υπάλληλος επιτρέπεται να πειράξει μόνο αιτήματα της υπηρεσίας του
+        Long personId = currentUserProvider.getCurrentUser()
+                .map(CurrentUser::id)
+                .orElseThrow();
+
+        Person employee = personRepository.findById(personId).orElseThrow();
+
+        if (employee.getServiceUnit() == null) {
+            return "redirect:/employee/requests";
+        }
+
+        Long suId = employee.getServiceUnit().getId();
+
+        if (request.getRequestType() == null
+                || request.getRequestType().getServiceUnit() == null
+                || !request.getRequestType().getServiceUnit().getId().equals(suId)) {
+            return "redirect:/employee/requests";
+        }
+
         request.setStatus(status);
 
         if (status == RequestStatus.COMPLETED || status == RequestStatus.CLOSED) {
