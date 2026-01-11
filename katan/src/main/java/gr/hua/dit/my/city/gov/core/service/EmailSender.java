@@ -13,9 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Service for sending notification emails to users via Nylas.
- */
+// nylas email sending logic
 @Service
 public class EmailSender {
 
@@ -46,12 +44,7 @@ public class EmailSender {
                 .build();
     }
 
-    /**
-     * Sends a simple email informing the user that an account was created
-     * with the specified email address.
-     *
-     * @param recipientEmail the user's email address
-     */
+    //send email with nylas
     public void sendAccountCreatedEmail(final String recipientEmail) {
         if (recipientEmail == null || recipientEmail.isBlank()) {
             logger.warn("Cannot send account created email: recipient email is null or blank");
@@ -65,20 +58,46 @@ public class EmailSender {
             final String subject = "My City Gov - Account created";
             final String body = String.format("You have successfully created a My City Gov account with this email address: %s.\n",recipientEmail);
 
-            final SendMessageRequest requestBody = new SendMessageRequest.Builder(recipients)
-                    .subject(subject)
-                    .body(body)
-                    .build();
-
-            final Response<Message> response = this.nylasClient.messages().send(this.grantId, requestBody);
-
-            if (response != null && response.getData() != null) {
-                logger.info("Sent account created email to {} with message id {}", recipientEmail, response.getData().getId());
-            } else {
-                logger.info("Sent account created email to {} (no response details)", recipientEmail);
-            }
+            sendSimpleEmailInternal(recipients, subject, body, recipientEmail, "account created");
         } catch (Exception e) {
             logger.error("Failed to send account created email to {}: {}", recipientEmail, e.getMessage(), e);
+        }
+    }
+
+    public void sendSimpleEmail(final String recipientEmail,
+                                final String subject,
+                                final String body) {
+        if (recipientEmail == null || recipientEmail.isBlank()) {
+            logger.warn("Cannot send email: recipient email is null or blank");
+            return;
+        }
+
+        try {
+            final List<EmailName> recipients = new ArrayList<>();
+            recipients.add(new EmailName(recipientEmail, null));
+
+            sendSimpleEmailInternal(recipients, subject, body, recipientEmail, "notification");
+        } catch (Exception e) {
+            logger.error("Failed to send email to {}: {}", recipientEmail, e.getMessage(), e);
+        }
+    }
+
+    private void sendSimpleEmailInternal(final List<EmailName> recipients,
+                                         final String subject,
+                                         final String body,
+                                         final String recipientEmail,
+                                         final String contextLabel) throws Exception {
+        final SendMessageRequest requestBody = new SendMessageRequest.Builder(recipients)
+                .subject(subject)
+                .body(body)
+                .build();
+
+        final Response<Message> response = this.nylasClient.messages().send(this.grantId, requestBody);
+
+        if (response != null && response.getData() != null) {
+            logger.info("Sent {} email to {} with message id {}", contextLabel, recipientEmail, response.getData().getId());
+        } else {
+            logger.info("Sent {} email to {} (no response details)", contextLabel, recipientEmail);
         }
     }
 }

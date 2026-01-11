@@ -56,7 +56,10 @@ public class AppointmentsController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
         LocalDate today = LocalDate.now();
-        if (!date.isAfter(today)) {
+        LocalTime now = LocalTime.now();
+
+        // dont allow past dates
+        if (date.isBefore(today)) {
             return List.of();
         }
 
@@ -79,6 +82,12 @@ public class AppointmentsController {
             LocalTime lastStart = s.getEndTime().minusMinutes(step);
 
             while (!t.isAfter(lastStart)) {
+                // For today, skip time slots that are already in the past.
+                if (date.isEqual(today) && t.isBefore(now)) {
+                    t = t.plusMinutes(step);
+                    continue;
+                }
+
                 if (!booked.contains(t)) slots.add(t);
                 t = t.plusMinutes(step);
             }
@@ -124,7 +133,9 @@ public class AppointmentsController {
 
         if (allowedDow.isEmpty()) return List.of();
 
-        LocalDate start = LocalDate.now().plusDays(1); // όχι σήμερα/παρελθόν
+        // Allow booking from today (current date) onwards; past dates are
+        // filtered out by availableTimes/saveAppointment.
+        LocalDate start = LocalDate.now();
         LocalDate end = start.plusDays(daysAhead - 1);
 
         List<String> out = new java.util.ArrayList<>();

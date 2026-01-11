@@ -19,6 +19,9 @@ public class Appointment {
     // ID of the person (citizen) who booked this appointment
     private Long personId;
 
+    // Whether an SMS reminder has already been sent for this appointment
+    private boolean reminderSent = false;
+
     //Getters-Setters
     public Long getId() {
         return id;
@@ -58,4 +61,12 @@ public class Appointment {
 
     public Long getServiceUnitId() {return serviceUnitId;}
     public void setServiceUnitId(Long serviceUnitId) {this.serviceUnitId = serviceUnitId;}
+
+    public boolean isReminderSent() {
+        return reminderSent;
+    }
+
+    public void setReminderSent(boolean reminderSent) {
+        this.reminderSent = reminderSent;
+    }
 }
