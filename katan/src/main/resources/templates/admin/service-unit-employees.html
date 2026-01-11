@@ -1,0 +1,38 @@
+<div th:fragment="content">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h4 class="mb-0">Υπάλληλοι Υπηρεσίας</h4>
+            <div class="text-muted" th:text="${serviceUnit.name}"></div>
+        </div>
+
+        <button class="btn btn-sm btn-outline-secondary"
+                onclick="loadContent('/admin/service-units','adminTab')">
+            ← Πίσω στις Υπηρεσίες
+        </button>
+    </div>
+
+    <form th:action="@{/admin/service-units/{id}/employees(id=${serviceUnit.id})}"
+          method="post"
+          onsubmit="event.preventDefault(); submitEmployeesAction(this);">
+
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <input type="hidden" id="serviceUnitEmployeesId" th:value="${serviceUnit.id}">
+
+        <div class="mb-2">
+            <label class="form-label">Επιλογή υπαλλήλων (Ctrl/⌘ για πολλαπλή επιλογή)</label>
+            <select class="form-select" multiple size="10" name="employeeIds">
+                <option th:each="e : ${employees}"
+                        th:value="${e.id}"
+                        th:text="${e.emailAddress}"
+                        th:selected="${e.serviceUnit != null and e.serviceUnit.id == serviceUnit.id}">
+                </option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            Αποθήκευση
+        </button>
+    </form>
+
+</div>

@@ -212,3 +212,49 @@ function submitScheduleAction(form) {
     submitPostAndReload(form, '/admin/service-units/' + sid + '/schedules');
 }
 
+function submitEmployeesAction(form) {
+    if (!form) {
+        console.error("submitEmployeesAction called without form");
+        alert("Δεν βρέθηκε φόρμα. Δες το onsubmit.");
+        return;
+    }
+    const sidEl = document.getElementById("serviceUnitEmployeesId");
+    if (!sidEl) {
+        console.error("Missing #serviceUnitEmployeesId");
+        alert("Λείπει το serviceUnitEmployeesId");
+        return;
+    }
+    const sid = sidEl.value;
+    submitPostAndReload(form, '/admin/service-units/' + sid + '/employees');
+}
+
+
+function saveServiceUnitEmployees(serviceUnitId) {
+    const select = document.getElementById('employees-' + serviceUnitId);
+    if (!select) {
+        console.error("SELECT NOT FOUND", serviceUnitId);
+        return;
+    }
+
+    const body = Array.from(select.selectedOptions)
+        .map(o => `employeeIds=${o.value}`)
+        .join('&');
+
+    fetch(`/admin/service-units/${serviceUnitId}/employees`, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            ...csrfHeaders()   // ⬅️ ΤΟ ΚΡΙΣΙΜΟ
+        },
+        body: body
+    })
+        .then(res => {
+            if (!res.ok) {
+                console.error("SAVE FAILED", res.status);
+                alert("Αποτυχία ανάθεσης υπαλλήλων");
+                return;
+            }
+            loadContent('/admin/service-units', 'adminTab');
+        });
+}
