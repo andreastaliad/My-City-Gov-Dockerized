@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html
+        xmlns:th="https://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{base}">
+<head>
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+
+    <style>
+        /* ΜΟΝΟ για employee περιεχόμενο */
+        .employee-tabs {
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            overflow-y: hidden;
+            white-space: nowrap;
+        }
+
+        .employee-tabs .nav-link {
+            font-weight: 500;
+            color: #0d6efd;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .employee-tabs .nav-link.active {
+            background-color: #f8f9fa;
+            color: #000;
+            font-weight: 600;
+        }
+
+        .employee-wide {
+            max-width: 100%;
+            width: 100%;
+            overflow-x: auto;
+            text-align: left;
+        }
+    </style>
+</head>
+
+<body>
+
+<div layout:fragment="main">
+    <div class="container mt-5">
+
+        <h2 class="mb-4 text-center fw-semibold">Employee Dashboard</h2>
+
+        <!-- EMPLOYEE TABS -->
+        <ul class="nav nav-tabs employee-tabs mb-0">
+
+            <li class="nav-item">
+                <button class="nav-link active"
+                        onclick="loadContent('/employee/overview','employeeTab')">
+                    Επισκόπηση
+                </button>
+            </li>
+
+            <li class="nav-item">
+                <button class="nav-link"
+                        onclick="loadContent('/employee/requests','employeeTab')">
+                    Αιτήματα Υπηρεσίας
+                </button>
+            </li>
+
+            <li class="nav-item">
+                <button class="nav-link"
+                        onclick="loadContent('/employee/appointments','employeeTab')">
+                    Ραντεβού
+                </button>
+            </li>
+
+        </ul>
+
+        <!-- DYNAMIC CONTENT -->
+        <div id="employeeTab"
+             class="p-4 border border-top-0 bg-white employee-wide rounded-bottom">
+            <!-- εδώ φορτώνουν τα fragments -->
+        </div>
+
+    </div>
+</div>
+<script th:src="@{/js/employee.js}"></script>
+</body>
+</html>

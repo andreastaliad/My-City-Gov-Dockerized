@@ -8,5 +8,9 @@ import java.util.List;
 public interface RequestRepository extends JpaRepository<Request, Long> {
 	List<Request> findByPersonId(Long personId);
 	List<Request> findByCitizenId(Long personId);
+	List<Request> findByRequestType_ServiceUnit_IdOrderByCreatedAtDesc(Long serviceUnitId);
+	long countByRequestType_ServiceUnit_Id(Long serviceUnitId);
+	List<Request> findByRequestType_ServiceUnit_IdOrderByIdDesc(Long serviceUnitId);
+
 }
 

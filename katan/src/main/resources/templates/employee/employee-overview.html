@@ -1,0 +1,10 @@
+<div th:fragment="content">
+    <h4>Επισκόπηση</h4>
+    <p><strong>Υπάλληλος:</strong> <span th:text="${employeeName}"></span></p>
+    <p><strong>Υπηρεσία:</strong> <span th:text="${serviceUnitName}"></span></p>
+
+    <div class="mt-3">
+        <p><strong>Αιτήματα υπηρεσίας:</strong> <span th:text="${requestsCount}"></span></p>
+        <p><strong>Ραντεβού υπηρεσίας:</strong> <span th:text="${appointmentsCount}"></span></p>
+    </div>
+</div>

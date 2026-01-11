@@ -1,16 +1,6 @@
 package gr.hua.dit.my.city.gov.core.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Index;
-import jakarta.persistence.Table;
-
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.*;
 
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -65,6 +55,10 @@ public class Person {
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="service_unit_id")
+    private ServiceUnit serviceUnit;
 
     public Person() {
     }
@@ -171,6 +165,9 @@ public class Person {
     public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
+
+    public ServiceUnit getServiceUnit() { return serviceUnit; }
+    public void setServiceUnit(ServiceUnit serviceUnit) { this.serviceUnit = serviceUnit; }
 
     @Override
     public String toString() {

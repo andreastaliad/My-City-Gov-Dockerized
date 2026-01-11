@@ -24,6 +24,6 @@ public class EmployeeAppointmentController {
     public String listAppointments(Model model) {
         List<Appointment> appointments = appointmentRepository.findAll();
         model.addAttribute("appointments", appointments);
-        return "employee/appointments-list";
+        return "employee/employee-appointments-list";
     }
 }

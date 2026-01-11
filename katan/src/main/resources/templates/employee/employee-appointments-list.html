@@ -1,0 +1,26 @@
+<div th:fragment="content">
+    <h4>Ραντεβού Υπηρεσίας</h4>
+
+    <div th:if="${error != null}" class="alert alert-warning" th:text="${error}"></div>
+
+    <div th:if="${#lists.isEmpty(appointments)}">
+        <p>Δεν υπάρχουν ραντεβού.</p>
+    </div>
+
+    <table th:if="${!#lists.isEmpty(appointments)}" class="table table-striped">
+        <thead>
+        <tr>
+            <th>Ημερομηνία</th>
+            <th>Ώρα</th>
+            <th>Πολίτης</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="a : ${appointments}">
+            <td th:text="${a.date}"></td>
+            <td th:text="${a.time}"></td>
+            <td th:text="${a.personId}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>

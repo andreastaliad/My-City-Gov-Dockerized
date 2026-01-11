@@ -27,4 +27,8 @@ public interface PersonRepository extends JpaRepository<Person, Long> {
     boolean existsByAfmIgnoreCase(final String afm);
 
     long countByType(PersonType type);
+
+    List<Person> findByTypeOrderByEmailAddressAsc(PersonType type);
+
+    List<Person> findByTypeAndServiceUnit_IdOrderByEmailAddressAsc(PersonType type, Long serviceUnitId);
 }

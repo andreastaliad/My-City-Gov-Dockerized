@@ -1,0 +1,26 @@
+<div th:fragment="content">
+    <h4>Αιτήματα Υπηρεσίας</h4>
+
+    <div th:if="${error != null}" class="alert alert-warning" th:text="${error}"></div>
+
+    <div th:if="${#lists.isEmpty(requests)}">
+        <p>Δεν υπάρχουν αιτήματα.</p>
+    </div>
+
+    <table th:if="${!#lists.isEmpty(requests)}" class="table table-striped">
+        <thead>
+        <tr>
+            <th>Πρωτόκολλο</th>
+            <th>Τίτλος</th>
+            <th>Κατάσταση</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="r : ${requests}">
+            <td th:text="${r.protocolNumber}"></td>
+            <td th:text="${r.title}"></td>
+            <td th:text="${r.status}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
