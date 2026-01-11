@@ -21,6 +21,9 @@ public class RequestType {
     @Column(nullable = false)
     private boolean active = true;
 
+    @Column(nullable = false)
+    private Integer slaDays = 10;
+
     public RequestType() {}
 
     // Getters / Setters
@@ -41,4 +44,7 @@ public class RequestType {
     }
     public boolean isActive() { return active; }
     public void setActive(boolean active) { this.active = active; }
+
+    public Integer getSlaDays() { return slaDays; }
+    public void setSlaDays(Integer slaDays) { this.slaDays = slaDays; }
 }

@@ -1,6 +1,7 @@
 package gr.hua.dit.my.city.gov.web.ui;
 
 import gr.hua.dit.my.city.gov.core.model.Person;
+import gr.hua.dit.my.city.gov.core.model.RequestStatus;
 import gr.hua.dit.my.city.gov.core.model.RequestType;
 import gr.hua.dit.my.city.gov.core.repository.PersonRepository;
 import gr.hua.dit.my.city.gov.core.model.Request;
@@ -61,7 +62,7 @@ public class RequestsController {
 
     @PostMapping("/requests")
     public String saveRequest(Request request,
-                             @RequestParam(value = "requestTypeId", required = false) Long requestTypeId,
+                             @RequestParam(value = "requestTypeId") Long requestTypeId,
                              @RequestParam(value = "attachments", required = false) MultipartFile[] attachments, Authentication authentication) throws Exception {
 
         // associate with current user, if logged in
@@ -69,11 +70,9 @@ public class RequestsController {
             .map(CurrentUser::id)
             .ifPresent(request::setPersonId);
 
-        if (requestTypeId != null) {
-            RequestType requestType = requestTypeRepository.findById(requestTypeId)
-                    .orElseThrow(() -> new IllegalArgumentException("Invalid requestTypeId: " + requestTypeId));
-            request.setRequestType(requestType);
-        }
+        RequestType requestType = requestTypeRepository.findById(requestTypeId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid requestTypeId: " + requestTypeId));
+        request.setRequestType(requestType);
 
         if (attachments != null && attachments.length > 0) {
             List<String> keys = new ArrayList<>();
@@ -92,6 +91,10 @@ public class RequestsController {
 
         Person person = resolveCurrentPerson(authentication);
         request.setCitizen(person);
+
+        if (request.getStatus() == null) {
+            request.setStatus(RequestStatus.CREATED);
+        }
 
         requestRepository.save(request);
         return "requests-success :: content";

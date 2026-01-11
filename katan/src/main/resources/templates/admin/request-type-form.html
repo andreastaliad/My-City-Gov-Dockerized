@@ -17,6 +17,16 @@
         </div>
 
         <div class="mb-3">
+            <label class="form-label">Προθεσμία διεκπεραίωσης (SLA σε ημέρες)</label>
+            <input type="number"
+                   class="form-control"
+                   name="slaDays"
+                   min="1"
+                   required
+                   th:value="${requestType.slaDays}">
+        </div>
+
+        <div class="mb-3">
             <label class="form-label">Υπηρεσία</label>
             <select class="form-select" name="serviceUnitId" required>
                 <option value="">Επιλογή Υπηρεσίας</option>

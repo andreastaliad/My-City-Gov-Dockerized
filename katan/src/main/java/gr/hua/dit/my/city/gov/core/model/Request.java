@@ -1,6 +1,8 @@
 package gr.hua.dit.my.city.gov.core.model;
 
 import jakarta.persistence.*;
+import gr.hua.dit.my.city.gov.core.util.ProtocolNumberGenerator;
+import java.time.LocalDateTime;
 
 @Entity
 public class Request {
@@ -25,6 +27,39 @@ public class Request {
 
     // Comma-separated MinIO object keys for uploaded attachments
     private String attachmentKey;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private RequestStatus status = RequestStatus.CREATED;
+
+    @PrePersist
+    public void prePersist() {
+        if (status == null) status = RequestStatus.CREATED;
+
+        if (createdAt == null) createdAt = LocalDateTime.now();
+
+        if (protocolNumber == null) protocolNumber = ProtocolNumberGenerator.newProtocol();
+
+        // dueAt = createdAt + SLA (από τον τύπο)
+        if (dueAt == null) {
+            Integer sla = (requestType != null ? requestType.getSlaDays() : null);
+            if (sla == null) sla = 10; // fallback (ή πέτα exception αν θες να είναι υποχρεωτικό)
+            dueAt = createdAt.plusDays(sla);
+        }
+    }
+
+
+    @Column(name = "protocol_number", nullable = false, unique = true, updatable = false, length = 32)
+    private String protocolNumber;
+
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(nullable = false)
+    private LocalDateTime dueAt;
+
+    @Column
+    private LocalDateTime completedAt;
     public Request() {}
 
     //Getters-Setters
@@ -70,4 +105,25 @@ public class Request {
 
     public Person getCitizen() { return citizen; }
     public void setCitizen(Person citizen) { this.citizen = citizen; }
+
+    public RequestStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(RequestStatus status) {
+        this.status = status;
+    }
+
+    public String getProtocolNumber() { return protocolNumber; }
+    public void setProtocolNumber(String protocolNumber) { this.protocolNumber = protocolNumber; }
+
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public LocalDateTime getDueAt() { return dueAt; }
+    public void setDueAt(LocalDateTime dueAt) { this.dueAt = dueAt; }
+
+    public LocalDateTime getCompletedAt() { return completedAt; }
+    public void setCompletedAt(LocalDateTime completedAt) { this.completedAt = completedAt; }
+
 }

@@ -45,6 +45,20 @@
                                 </button>
                             </div>
 
+                            <p class="mb-1">
+                                <strong>Κατάσταση:</strong>
+
+                                <span th:switch="${request.status}">
+                                    <span th:case="${T(gr.hua.dit.my.city.gov.core.model.RequestStatus).CREATED}" class="badge bg-secondary">Καταχωρήθηκε</span>
+                                    <span th:case="${T(gr.hua.dit.my.city.gov.core.model.RequestStatus).ASSIGNED}" class="badge bg-info">Ανατέθηκε</span>
+                                    <span th:case="${T(gr.hua.dit.my.city.gov.core.model.RequestStatus).IN_PROGRESS}" class="badge bg-warning text-dark">Σε εξέλιξη</span>
+                                    <span th:case="${T(gr.hua.dit.my.city.gov.core.model.RequestStatus).ON_HOLD}" class="badge bg-dark">Σε αναμονή</span>
+                                    <span th:case="${T(gr.hua.dit.my.city.gov.core.model.RequestStatus).COMPLETED}" class="badge bg-success">Ολοκληρώθηκε</span>
+                                    <span th:case="${T(gr.hua.dit.my.city.gov.core.model.RequestStatus).CLOSED}" class="badge bg-primary">Έκλεισε</span>
+                                    <span th:case="*" class="badge bg-secondary">Άγνωστη</span>
+                                </span>
+                            </p>
+
                             <div th:id="${'req-details-' + request.id}"
                                  style="display:none;" class="mt-3 pt-3 border-top">
                                 <h6 class="mb-2">Συνημμένα αρχεία</h6>
