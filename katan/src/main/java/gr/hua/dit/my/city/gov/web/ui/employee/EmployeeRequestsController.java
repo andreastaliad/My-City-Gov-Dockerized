@@ -12,11 +12,15 @@ import gr.hua.dit.my.city.gov.core.service.EmailSender;
 import gr.hua.dit.my.city.gov.core.service.SmsSender;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/employee/requests")
@@ -57,21 +61,28 @@ public class EmployeeRequestsController {
 
         Long suId = employee.getServiceUnit().getId();
 
-        model.addAttribute(
-                "requests",
-                requestRepository.findByRequestType_ServiceUnit_IdOrderByCreatedAtDesc(suId)
-        );
+        // Προτείνω να βλέπει: unassigned + τα δικά του
+        List<Request> unassigned = requestRepository
+                .findByRequestType_ServiceUnit_IdAndAssignedEmployeeIsNullOrderByCreatedAtDesc(suId);
+
+        List<Request> mine = requestRepository
+                .findByRequestType_ServiceUnit_IdAndAssignedEmployee_IdOrderByCreatedAtDesc(suId, employee.getId());
+
+        // merge χωρίς διπλότυπα
+        Map<Long, Request> map = new LinkedHashMap<>();
+        for (Request r : unassigned) map.put(r.getId(), r);
+        for (Request r : mine) map.put(r.getId(), r);
+
+        model.addAttribute("requests", new ArrayList<>(map.values()));
+        model.addAttribute("employeeId", employee.getId());
 
         return "employee/employee-requests-list :: content";
     }
 
-    @PostMapping("/{id}/status")
-    public String updateStatus(@PathVariable Long id,
-                               @RequestParam RequestStatus status) {
+    @PostMapping("/{id}/claim")
+    @Transactional
+    public String claim(@PathVariable Long id) {
 
-        Request request = requestRepository.findById(id).orElseThrow();
-
-        // Security: ο υπάλληλος επιτρέπεται να πειράξει μόνο αιτήματα της υπηρεσίας του
         Long personId = currentUserProvider.getCurrentUser()
                 .map(CurrentUser::id)
                 .orElseThrow();
@@ -82,11 +93,64 @@ public class EmployeeRequestsController {
             return "redirect:/employee/requests";
         }
 
-        Long suId = employee.getServiceUnit().getId();
+        Request request = requestRepository.findById(id).orElseThrow();
 
+        // Security: πρέπει να είναι στην ίδια υπηρεσία
+        Long suId = employee.getServiceUnit().getId();
         if (request.getRequestType() == null
                 || request.getRequestType().getServiceUnit() == null
                 || !request.getRequestType().getServiceUnit().getId().equals(suId)) {
+            return "redirect:/employee/requests";
+        }
+
+        // Atomic claim: μόνο αν είναι unassigned
+        requestRepository.claimIfUnassigned(id, employee.getId(), LocalDateTime.now());
+
+        return "redirect:/employee/requests";
+    }
+
+    @PostMapping("/{id}/unclaim")
+    @Transactional
+    public String unclaim(@PathVariable Long id) {
+
+        Long personId = currentUserProvider.getCurrentUser()
+                .map(CurrentUser::id)
+                .orElseThrow();
+
+        // Μόνο αν είναι δικό του
+        requestRepository.unclaimIfOwned(id, personId);
+
+        return "redirect:/employee/requests";
+    }
+
+    @PostMapping("/{id}/status")
+    @Transactional
+    public String updateStatus(@PathVariable Long id,
+                               @RequestParam RequestStatus status) {
+
+        Long personId = currentUserProvider.getCurrentUser()
+                .map(CurrentUser::id)
+                .orElseThrow();
+
+        Person employee = personRepository.findById(personId).orElseThrow();
+
+        if (employee.getServiceUnit() == null) {
+            return "redirect:/employee/requests";
+        }
+
+        Request request = requestRepository.findById(id).orElseThrow();
+
+        // Security 1: ίδιο service unit
+        Long suId = employee.getServiceUnit().getId();
+        if (request.getRequestType() == null
+                || request.getRequestType().getServiceUnit() == null
+                || !request.getRequestType().getServiceUnit().getId().equals(suId)) {
+            return "redirect:/employee/requests";
+        }
+
+        // Security 2: επιτρέπεται update μόνο αν είναι ανατεθειμένο στον ίδιο
+        if (request.getAssignedEmployee() == null
+                || !request.getAssignedEmployee().getId().equals(employee.getId())) {
             return "redirect:/employee/requests";
         }
 
@@ -100,6 +164,7 @@ public class EmployeeRequestsController {
 
         request = requestRepository.save(request);
 
+        // Notifications
         Person citizen = request.getCitizen();
         if (citizen != null) {
             String message = String.format(

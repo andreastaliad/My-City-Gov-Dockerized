@@ -40,7 +40,7 @@ public class Request {
 
         if (protocolNumber == null) protocolNumber = ProtocolNumberGenerator.newProtocol();
 
-        // dueAt = createdAt + SLA (από τον τύπο)
+        // dueAt = createdAt + SLA (απόΑνάθεση αιτήματος σε συγκεκριμένο υπάλληλο (ή ανάληψη). τον τύπο)
         if (dueAt == null) {
             Integer sla = (requestType != null ? requestType.getSlaDays() : null);
             if (sla == null) sla = 10; // fallback (ή πέτα exception αν θες να είναι υποχρεωτικό)
@@ -60,6 +60,13 @@ public class Request {
 
     @Column
     private LocalDateTime completedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "assigned_employee_id")
+    private Person assignedEmployee;
+
+    private LocalDateTime assignedAt;
+
     public Request() {}
 
     //Getters-Setters
@@ -126,4 +133,19 @@ public class Request {
     public LocalDateTime getCompletedAt() { return completedAt; }
     public void setCompletedAt(LocalDateTime completedAt) { this.completedAt = completedAt; }
 
+    public Person getAssignedEmployee() {
+        return assignedEmployee;
+    }
+
+    public void setAssignedEmployee(Person assignedEmployee) {
+        this.assignedEmployee = assignedEmployee;
+    }
+
+    public LocalDateTime getAssignedAt() {
+        return assignedAt;
+    }
+
+    public void setAssignedAt(LocalDateTime assignedAt) {
+        this.assignedAt = assignedAt;
+    }
 }

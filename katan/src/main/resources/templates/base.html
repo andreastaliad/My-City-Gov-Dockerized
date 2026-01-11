@@ -168,6 +168,31 @@
             buttonElement.textContent = isHidden ? 'less' : 'more';
         }
     }
+
+    //για τους υπαλληλους οταν αναλαμβανουν αιτημα
+    function postFormAndReloadEmployeeRequests(form) {
+        fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form),
+            credentials: 'same-origin',
+            headers: csrfHeaders()
+        })
+            .then(async res => {
+                if (!res.ok) {
+                    const text = await res.text();
+                    console.error("POST failed:", res.status, text);
+                    alert("Αποτυχία ενέργειας");
+                    return;
+                }
+                // Reload το ίδιο tab (fragment)
+                loadContent('/employee/requests', 'employeeTab'); // <- το id του tab container σου
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Σφάλμα επικοινωνίας");
+            });
+    }
+
 </script>
 <script th:src="@{/js/admin.js}"></script>
 <script th:src="@{/js/appointments.js}"></script>

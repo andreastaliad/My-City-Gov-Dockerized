@@ -13,13 +13,62 @@
             <th>Πρωτόκολλο</th>
             <th>Τίτλος</th>
             <th>Κατάσταση</th>
+            <th>Ανατέθηκε σε</th>
+            <th>Ενέργεια</th>
         </tr>
         </thead>
+
         <tbody>
         <tr th:each="r : ${requests}">
             <td th:text="${r.protocolNumber}"></td>
             <td th:text="${r.title}"></td>
             <td th:text="${r.status}"></td>
+
+            <td>
+                <span th:if="${r.assignedEmployee == null}" class="badge bg-secondary">
+                    Χωρίς ανάθεση
+                </span>
+                <span th:if="${r.assignedEmployee != null}" class="badge bg-info"
+                      th:text="${r.assignedEmployee.emailAddress}">
+                </span>
+            </td>
+
+            <td class="d-flex gap-2">
+
+                <!-- Ανάληψη (μόνο όταν είναι unassigned) -->
+                <form th:action="@{/employee/requests/{id}/claim(id=${r.id})}"
+                      method="post"
+                      onsubmit="event.preventDefault(); postFormAndReloadEmployeeRequests(this);">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <button type="submit" class="btn btn-sm btn-success">Ανάληψη</button>
+                </form>
+
+                <!-- Αποδέσμευση (μόνο όταν είναι δικό μου) -->
+                <form th:action="@{/employee/requests/{id}/unclaim(id=${r.id})}"
+                      method="post"
+                      onsubmit="event.preventDefault(); postFormAndReloadEmployeeRequests(this);">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <button type="submit" class="btn btn-sm btn-warning">Αποδέσμευση</button>
+                </form>
+
+                <!-- Status update (μόνο όταν είναι δικό μου) -->
+                <form th:if="${r.assignedEmployee != null and r.assignedEmployee.id == employeeId}"
+                      th:action="@{/employee/requests/{id}/status(id=${r.id})}"
+                      method="post" class="d-flex gap-2">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
+                    <select class="form-select form-select-sm" name="status" style="width: 160px;">
+                        <option th:each="st : ${T(gr.hua.dit.my.city.gov.core.model.RequestStatus).values()}"
+                                th:value="${st}"
+                                th:text="${st}"
+                                th:selected="${st == r.status}">
+                        </option>
+                    </select>
+
+                    <button class="btn btn-sm btn-primary">Αποθήκευση</button>
+                </form>
+
+            </td>
         </tr>
         </tbody>
     </table>
