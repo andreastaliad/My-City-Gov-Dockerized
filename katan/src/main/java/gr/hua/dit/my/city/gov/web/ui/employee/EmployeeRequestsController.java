@@ -32,6 +32,21 @@ public class EmployeeRequestsController {
     private final SmsSender smsSender;
     private final EmailSender emailSender;
 
+    private void loadRequests(Model model, Long serviceUnitId, Long employeeId) {
+        List<Request> unassigned = requestRepository
+                .findByRequestType_ServiceUnit_IdAndAssignedEmployeeIsNullOrderByCreatedAtDesc(serviceUnitId);
+
+        List<Request> mine = requestRepository
+                .findByRequestType_ServiceUnit_IdAndAssignedEmployee_IdOrderByCreatedAtDesc(serviceUnitId, employeeId);
+
+        Map<Long, Request> map = new LinkedHashMap<>();
+        for (Request r : unassigned) map.put(r.getId(), r);
+        for (Request r : mine) map.put(r.getId(), r);
+
+        model.addAttribute("requests", new ArrayList<>(map.values()));
+        model.addAttribute("employeeId", employeeId);
+    }
+
     public EmployeeRequestsController(RequestRepository requestRepository,
                                       PersonRepository personRepository,
                                       CurrentUserProvider currentUserProvider,
@@ -81,7 +96,7 @@ public class EmployeeRequestsController {
 
     @PostMapping("/{id}/claim")
     @Transactional
-    public String claim(@PathVariable Long id) {
+    public String claim(@PathVariable Long id, Model model) {
 
         Long personId = currentUserProvider.getCurrentUser()
                 .map(CurrentUser::id)
@@ -90,43 +105,63 @@ public class EmployeeRequestsController {
         Person employee = personRepository.findById(personId).orElseThrow();
 
         if (employee.getServiceUnit() == null) {
-            return "redirect:/employee/requests";
+            model.addAttribute("requests", List.of());
+            model.addAttribute("employeeId", employee.getId());
+            model.addAttribute("error", "Δεν είστε αντιστοιχισμένος σε υπηρεσία");
+            return "employee/employee-requests-list :: content";
         }
 
         Request request = requestRepository.findById(id).orElseThrow();
 
-        // Security: πρέπει να είναι στην ίδια υπηρεσία
         Long suId = employee.getServiceUnit().getId();
         if (request.getRequestType() == null
                 || request.getRequestType().getServiceUnit() == null
                 || !request.getRequestType().getServiceUnit().getId().equals(suId)) {
-            return "redirect:/employee/requests";
+
+            loadRequests(model, suId, employee.getId());
+            model.addAttribute("error", "Δεν επιτρέπεται ανάληψη αιτήματος άλλης υπηρεσίας.");
+            return "employee/employee-requests-list :: content";
         }
 
-        // Atomic claim: μόνο αν είναι unassigned
+        // Atomic claim (όπως το έχεις)
         requestRepository.claimIfUnassigned(id, employee.getId(), LocalDateTime.now());
 
-        return "redirect:/employee/requests";
+        loadRequests(model, suId, employee.getId());
+        return "employee/employee-requests-list :: content";
     }
+
 
     @PostMapping("/{id}/unclaim")
     @Transactional
-    public String unclaim(@PathVariable Long id) {
+    public String unclaim(@PathVariable Long id, Model model) {
 
         Long personId = currentUserProvider.getCurrentUser()
                 .map(CurrentUser::id)
                 .orElseThrow();
 
-        // Μόνο αν είναι δικό του
+        Person employee = personRepository.findById(personId).orElseThrow();
+
+        if (employee.getServiceUnit() == null) {
+            model.addAttribute("requests", List.of());
+            model.addAttribute("employeeId", employee.getId());
+            model.addAttribute("error", "Δεν είστε αντιστοιχισμένος σε υπηρεσία");
+            return "employee/employee-requests-list :: content";
+        }
+
+        Long suId = employee.getServiceUnit().getId();
+
+        // Μόνο αν είναι δικό του (όπως το έχεις)
         requestRepository.unclaimIfOwned(id, personId);
 
-        return "redirect:/employee/requests";
+        loadRequests(model, suId, employee.getId());
+        return "employee/employee-requests-list :: content";
     }
 
     @PostMapping("/{id}/status")
     @Transactional
     public String updateStatus(@PathVariable Long id,
-                               @RequestParam RequestStatus status) {
+                               @RequestParam RequestStatus status,
+                               Model model) {
 
         Long personId = currentUserProvider.getCurrentUser()
                 .map(CurrentUser::id)
@@ -135,23 +170,32 @@ public class EmployeeRequestsController {
         Person employee = personRepository.findById(personId).orElseThrow();
 
         if (employee.getServiceUnit() == null) {
-            return "redirect:/employee/requests";
+            model.addAttribute("requests", List.of());
+            model.addAttribute("employeeId", employee.getId());
+            model.addAttribute("error", "Δεν είστε αντιστοιχισμένος σε υπηρεσία");
+            return "employee/employee-requests-list :: content";
         }
 
+        Long suId = employee.getServiceUnit().getId();
         Request request = requestRepository.findById(id).orElseThrow();
 
         // Security 1: ίδιο service unit
-        Long suId = employee.getServiceUnit().getId();
         if (request.getRequestType() == null
                 || request.getRequestType().getServiceUnit() == null
                 || !request.getRequestType().getServiceUnit().getId().equals(suId)) {
-            return "redirect:/employee/requests";
+
+            loadRequests(model, suId, employee.getId());
+            model.addAttribute("error", "Δεν επιτρέπεται να ενημερώσετε αίτημα άλλης υπηρεσίας.");
+            return "employee/employee-requests-list :: content";
         }
 
-        // Security 2: επιτρέπεται update μόνο αν είναι ανατεθειμένο στον ίδιο
+        // Security 2: update μόνο αν είναι ανατεθειμένο στον ίδιο
         if (request.getAssignedEmployee() == null
                 || !request.getAssignedEmployee().getId().equals(employee.getId())) {
-            return "redirect:/employee/requests";
+
+            loadRequests(model, suId, employee.getId());
+            model.addAttribute("error", "Δεν επιτρέπεται να ενημερώσετε αίτημα που δεν είναι ανατεθειμένο σε εσάς.");
+            return "employee/employee-requests-list :: content";
         }
 
         request.setStatus(status);
@@ -162,9 +206,14 @@ public class EmployeeRequestsController {
             }
         }
 
+        // Fix για DB constraint: due_at NOT NULL
+        if (request.getDueAt() == null) {
+            request.setDueAt(LocalDateTime.now().plusDays(7));
+        }
+
         request = requestRepository.save(request);
 
-        // Notifications
+        // Notifications (όπως το έχεις)
         Person citizen = request.getCitizen();
         if (citizen != null) {
             String message = String.format(
@@ -187,6 +236,8 @@ public class EmployeeRequestsController {
             }
         }
 
-        return "redirect:/employee/requests";
+        loadRequests(model, suId, employee.getId());
+        return "employee/employee-requests-list :: content";
     }
+
 }
