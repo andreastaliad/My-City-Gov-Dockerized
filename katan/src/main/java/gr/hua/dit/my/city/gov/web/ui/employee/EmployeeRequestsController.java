@@ -1,10 +1,8 @@
 package gr.hua.dit.my.city.gov.web.ui.employee;
 
-import gr.hua.dit.my.city.gov.core.model.Person;
-import gr.hua.dit.my.city.gov.core.model.PersonType;
-import gr.hua.dit.my.city.gov.core.model.Request;
-import gr.hua.dit.my.city.gov.core.model.RequestStatus;
+import gr.hua.dit.my.city.gov.core.model.*;
 import gr.hua.dit.my.city.gov.core.repository.PersonRepository;
+import gr.hua.dit.my.city.gov.core.repository.RequestCommentRepository;
 import gr.hua.dit.my.city.gov.core.repository.RequestRepository;
 import gr.hua.dit.my.city.gov.core.security.CurrentUser;
 import gr.hua.dit.my.city.gov.core.security.CurrentUserProvider;
@@ -21,6 +19,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/employee/requests")
@@ -31,29 +30,47 @@ public class EmployeeRequestsController {
     private final CurrentUserProvider currentUserProvider;
     private final SmsSender smsSender;
     private final EmailSender emailSender;
+    private final RequestCommentRepository requestCommentRepository;
 
     private void loadRequests(Model model, Long serviceUnitId, Long employeeId) {
+
         List<Request> unassigned = requestRepository
                 .findByRequestType_ServiceUnit_IdAndAssignedEmployeeIsNullOrderByCreatedAtDesc(serviceUnitId);
 
         List<Request> mine = requestRepository
                 .findByRequestType_ServiceUnit_IdAndAssignedEmployee_IdOrderByCreatedAtDesc(serviceUnitId, employeeId);
 
+        // merge χωρίς διπλότυπα
         Map<Long, Request> map = new LinkedHashMap<>();
         for (Request r : unassigned) map.put(r.getId(), r);
         for (Request r : mine) map.put(r.getId(), r);
 
-        model.addAttribute("requests", new ArrayList<>(map.values()));
+        List<Request> reqs = new ArrayList<>(map.values());
+
+        model.addAttribute("requests", reqs);
         model.addAttribute("employeeId", employeeId);
+
+        // σχόλια ανά αίτημα (χρησιμοποιεί την υπάρχουσα μέθοδο του repo)
+        Map<Long, List<RequestComment>> commentsByRequestId = new LinkedHashMap<>();
+        for (Request r : reqs) {
+            commentsByRequestId.put(
+                    r.getId(),
+                    requestCommentRepository.findByRequest_IdOrderByCreatedAtDesc(r.getId())
+            );
+        }
+        model.addAttribute("commentsByRequestId", commentsByRequestId);
     }
+
 
     public EmployeeRequestsController(RequestRepository requestRepository,
                                       PersonRepository personRepository,
+                                      RequestCommentRepository requestCommentRepository,
                                       CurrentUserProvider currentUserProvider,
                                       SmsSender smsSender,
                                       EmailSender emailSender) {
         this.requestRepository = requestRepository;
         this.personRepository = personRepository;
+        this.requestCommentRepository = requestCommentRepository;
         this.currentUserProvider = currentUserProvider;
         this.smsSender = smsSender;
         this.emailSender = emailSender;
@@ -88,7 +105,21 @@ public class EmployeeRequestsController {
         for (Request r : unassigned) map.put(r.getId(), r);
         for (Request r : mine) map.put(r.getId(), r);
 
-        model.addAttribute("requests", new ArrayList<>(map.values()));
+        List<Request> reqs = new ArrayList<>(map.values());
+
+        model.addAttribute("requests", reqs);
+        model.addAttribute("employeeId", employee.getId());
+
+        // ADDITIVE: φόρτωσε σχόλια για όσα requests ήδη εμφανίζεις
+        Map<Long, List<RequestComment>> commentsByRequestId = new LinkedHashMap<>();
+        for (Request r : reqs) {
+            commentsByRequestId.put(
+                    r.getId(),
+                    requestCommentRepository.findByRequest_IdOrderByCreatedAtDesc(r.getId())
+            );
+        }
+
+        model.addAttribute("commentsByRequestId", commentsByRequestId);
         model.addAttribute("employeeId", employee.getId());
 
         return "employee/employee-requests-list :: content";
@@ -235,6 +266,116 @@ public class EmployeeRequestsController {
                 );
             }
         }
+
+        loadRequests(model, suId, employee.getId());
+        return "employee/employee-requests-list :: content";
+    }
+
+    @PostMapping("/{id}/comment")
+    @Transactional
+    public String addComment(@PathVariable Long id,
+                             @RequestParam("text") String text,
+                             Model model) {
+
+        Long personId = currentUserProvider.getCurrentUser().map(CurrentUser::id).orElseThrow();
+        Person employee = personRepository.findById(personId).orElseThrow();
+
+        if (employee.getServiceUnit() == null) {
+            model.addAttribute("requests", List.of());
+            model.addAttribute("employeeId", employee.getId());
+            model.addAttribute("error", "Δεν είστε αντιστοιχισμένος σε υπηρεσία");
+            return "employee/employee-requests-list :: content";
+        }
+
+        Long suId = employee.getServiceUnit().getId();
+        Request request = requestRepository.findById(id).orElseThrow();
+
+        // Security: ίδιο service unit
+        if (request.getRequestType() == null
+                || request.getRequestType().getServiceUnit() == null
+                || !request.getRequestType().getServiceUnit().getId().equals(suId)) {
+            loadRequests(model, suId, employee.getId());
+            model.addAttribute("error", "Δεν επιτρέπεται σχόλιο σε αίτημα άλλης υπηρεσίας.");
+            return "employee/employee-requests-list :: content";
+        }
+
+        // Αν θες: μόνο αν είναι assigned σε αυτόν
+        if (request.getAssignedEmployee() == null
+                || !request.getAssignedEmployee().getId().equals(employee.getId())) {
+            loadRequests(model, suId, employee.getId());
+            model.addAttribute("error", "Δεν μπορείτε να σχολιάσετε αίτημα που δεν είναι ανατεθειμένο σε εσάς.");
+            return "employee/employee-requests-list :: content";
+        }
+
+        String clean = text == null ? "" : text.trim();
+        if (clean.isEmpty()) {
+            loadRequests(model, suId, employee.getId());
+            model.addAttribute("error", "Το σχόλιο δεν μπορεί να είναι κενό.");
+            return "employee/employee-requests-list :: content";
+        }
+
+        RequestComment c = new RequestComment();
+        c.setRequest(request);
+        c.setAuthorEmployee(employee);
+        c.setText(clean);
+        requestCommentRepository.save(c);
+
+        loadRequests(model, suId, employee.getId());
+        return "employee/employee-requests-list :: content";
+    }
+
+    @PostMapping("/{id}/decision")
+    @Transactional
+    public String decide(@PathVariable Long id,
+                         @RequestParam("decision") EmployeeDecision decision,
+                         @RequestParam("reason") String reason,
+                         Model model) {
+
+        Long personId = currentUserProvider.getCurrentUser().map(CurrentUser::id).orElseThrow();
+        Person employee = personRepository.findById(personId).orElseThrow();
+
+        if (employee.getServiceUnit() == null) {
+            model.addAttribute("requests", List.of());
+            model.addAttribute("employeeId", employee.getId());
+            model.addAttribute("error", "Δεν είστε αντιστοιχισμένος σε υπηρεσία");
+            return "employee/employee-requests-list :: content";
+        }
+
+        Long suId = employee.getServiceUnit().getId();
+        Request request = requestRepository.findById(id).orElseThrow();
+
+        // Security 1: ίδιο service unit
+        if (request.getRequestType() == null
+                || request.getRequestType().getServiceUnit() == null
+                || !request.getRequestType().getServiceUnit().getId().equals(suId)) {
+            loadRequests(model, suId, employee.getId());
+            model.addAttribute("error", "Δεν επιτρέπεται απόφαση σε αίτημα άλλης υπηρεσίας.");
+            return "employee/employee-requests-list :: content";
+        }
+
+        // Security 2: μόνο ο assigned employee
+        if (request.getAssignedEmployee() == null
+                || !request.getAssignedEmployee().getId().equals(employee.getId())) {
+            loadRequests(model, suId, employee.getId());
+            model.addAttribute("error", "Δεν μπορείτε να εγκρίνετε/απορρίψετε αίτημα που δεν είναι ανατεθειμένο σε εσάς.");
+            return "employee/employee-requests-list :: content";
+        }
+
+        // Validation: τεκμηρίωση υποχρεωτική ειδικά σε REJECTED
+        String cleanReason = reason == null ? "" : reason.trim();
+        if (decision == EmployeeDecision.REJECTED && cleanReason.isEmpty()) {
+            loadRequests(model, suId, employee.getId());
+            model.addAttribute("error", "Η απόρριψη απαιτεί τεκμηρίωση.");
+            return "employee/employee-requests-list :: content";
+        }
+
+        // Update μόνο των πεδίων decision (ΟΧΙ save όλο το entity)
+        requestRepository.updateDecision(
+                id,
+                decision,
+                cleanReason.isEmpty() ? null : cleanReason,
+                LocalDateTime.now()
+        );
 
         loadRequests(model, suId, employee.getId());
         return "employee/employee-requests-list :: content";

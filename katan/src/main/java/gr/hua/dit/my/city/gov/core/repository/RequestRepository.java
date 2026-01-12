@@ -1,6 +1,8 @@
 package gr.hua.dit.my.city.gov.core.repository;
 
+import gr.hua.dit.my.city.gov.core.model.EmployeeDecision;
 import gr.hua.dit.my.city.gov.core.model.Request;
+import gr.hua.dit.my.city.gov.core.model.RequestStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -44,5 +46,29 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
     """)
 	int unclaimIfOwned(@Param("requestId") Long requestId,
 					   @Param("employeeId") Long employeeId);
+
+	@Modifying
+	@Query("""
+    update Request r
+       set r.status = :status,
+           r.completedAt = :completedAt
+     where r.id = :id
+  """)
+	int updateStatusOnly(@Param("id") Long id,
+						 @Param("status") RequestStatus status,
+						 @Param("completedAt") LocalDateTime completedAt);
+
+	@Modifying
+	@Query("""
+    update Request r
+       set r.employeeDecision = :decision,
+           r.employeeDecisionReason = :reason,
+           r.employeeDecidedAt = :decidedAt
+     where r.id = :id
+  """)
+	int updateDecision(@Param("id") Long id,
+					   @Param("decision") EmployeeDecision decision,
+					   @Param("reason") String reason,
+					   @Param("decidedAt") LocalDateTime decidedAt);
 }
 

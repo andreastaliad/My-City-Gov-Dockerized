@@ -67,6 +67,17 @@ public class Request {
 
     private LocalDateTime assignedAt;
 
+    // Απόφαση υπαλλήλου για ανατεθειμένα αιτήματα
+    @Enumerated(EnumType.STRING)
+    @Column(name = "employee_decision", nullable = false)
+    private EmployeeDecision employeeDecision = EmployeeDecision.PENDING;
+
+    @Column(name = "employee_decision_reason", length = 2000)
+    private String employeeDecisionReason;
+
+    @Column(name = "employee_decided_at")
+    private LocalDateTime employeeDecidedAt;
+
     public Request() {}
 
     //Getters-Setters
@@ -147,5 +158,29 @@ public class Request {
 
     public void setAssignedAt(LocalDateTime assignedAt) {
         this.assignedAt = assignedAt;
+    }
+
+    public EmployeeDecision getEmployeeDecision() {
+        return employeeDecision;
+    }
+
+    public void setEmployeeDecision(EmployeeDecision employeeDecision) {
+        this.employeeDecision = employeeDecision;
+    }
+
+    public String getEmployeeDecisionReason() {
+        return employeeDecisionReason;
+    }
+
+    public void setEmployeeDecisionReason(String employeeDecisionReason) {
+        this.employeeDecisionReason = employeeDecisionReason;
+    }
+
+    public LocalDateTime getEmployeeDecidedAt() {
+        return employeeDecidedAt;
+    }
+
+    public void setEmployeeDecidedAt(LocalDateTime employeeDecidedAt) {
+        this.employeeDecidedAt = employeeDecidedAt;
     }
 }
