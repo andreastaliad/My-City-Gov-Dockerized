@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html
+        xmlns:th="https://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{base}">
+<head>
+    <title>Error</title>
+</head>
+
+<body>
+<div layout:fragment="main" class="d-flex align-items-center justify-content-center vh-100">
+    <div class="text-center">
+        <h1 class="display-1 fw-bold">ERROR</h1>
+        <p class="fs-3"><span class="text-danger">Oops...</span> an error occurred.</p>
+        <p class="lead">
+            The page you’re looking for is not accessible.
+        </p>
+        <a class="btn btn-primary mt-3" th:href="@{/}">Go Back Home</a>
+    </div>
+</div>
+</body>
+</html>
