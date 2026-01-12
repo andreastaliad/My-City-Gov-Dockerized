@@ -9,6 +9,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import gr.hua.dit.my.city.gov.core.model.Person;
+import gr.hua.dit.my.city.gov.core.model.PersonType;
+import gr.hua.dit.my.city.gov.core.model.Request;
+import gr.hua.dit.my.city.gov.core.repository.PersonRepository;
+import java.util.*;
+
 
 @Controller
 @RequestMapping("/admin")
@@ -19,12 +25,14 @@ public class AdminUiController {
     private final RequestRepository requestRepository;
     private final AppointmentRepository appointmentRepository;
     private final IssueRepository issueRepository;
+    private final PersonRepository personRepository;
 
-    public AdminUiController(AdminUserService adminUserService, RequestRepository requestRepository, AppointmentRepository appointmentRepository, IssueRepository issueRepository) {
+    public AdminUiController(AdminUserService adminUserService, RequestRepository requestRepository, AppointmentRepository appointmentRepository, IssueRepository issueRepository, PersonRepository personRepository) {
         this.adminUserService = adminUserService;
         this.requestRepository = requestRepository;
         this.appointmentRepository = appointmentRepository;
         this.issueRepository = issueRepository;
+        this.personRepository = personRepository;
     }
 
     //admin dashboard
@@ -58,9 +66,28 @@ public class AdminUiController {
     //πίνακας αιτημάτων
     @GetMapping("/requests")
     public String adminRequests(Model model) {
-        model.addAttribute("requests", requestRepository.findAll());
+
+        List<Request> requests = requestRepository.findAll();
+        model.addAttribute("requests", requests);
+
+        // serviceUnitId -> employees
+        Map<Long, List<Person>> employeesByServiceUnit = new LinkedHashMap<>();
+
+        for (Request r : requests) {
+            if (r.getRequestType() == null || r.getRequestType().getServiceUnit() == null) continue;
+
+            Long suId = r.getRequestType().getServiceUnit().getId();
+
+            employeesByServiceUnit.computeIfAbsent(suId, k ->
+                    personRepository.findByTypeAndServiceUnit_IdOrderByEmailAddressAsc(PersonType.EMPLOYEE, suId)
+            );
+        }
+
+        model.addAttribute("employeesByServiceUnit", employeesByServiceUnit);
+
         return "admin/requests-list :: content";
     }
+
 
     //πίνακας ραντεβού
     @GetMapping("/appointments")

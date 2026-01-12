@@ -258,3 +258,30 @@ function saveServiceUnitEmployees(serviceUnitId) {
             loadContent('/admin/service-units', 'adminTab');
         });
 }
+
+function postFormAndReloadAdminRequests(form) {
+
+    const url = form.action;
+    const formData = new FormData(form);
+
+    fetch(url, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Request failed');
+            }
+            return response.text();
+        })
+        .then(html => {
+            document.getElementById('adminTab').innerHTML = html;
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Σφάλμα κατά την ανάθεση αιτήματος');
+        });
+}

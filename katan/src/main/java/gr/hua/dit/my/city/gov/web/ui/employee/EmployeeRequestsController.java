@@ -362,7 +362,7 @@ public class EmployeeRequestsController {
         }
 
         // Validation: τεκμηρίωση υποχρεωτική ειδικά σε REJECTED
-        String cleanReason = reason == null ? "" : reason.trim();
+        String cleanReason = (reason == null) ? "" : reason.trim();
         if (decision == EmployeeDecision.REJECTED && cleanReason.isEmpty()) {
             loadRequests(model, suId, employee.getId());
             model.addAttribute("error", "Η απόρριψη απαιτεί τεκμηρίωση.");
@@ -370,12 +370,15 @@ public class EmployeeRequestsController {
         }
 
         // Update μόνο των πεδίων decision (ΟΧΙ save όλο το entity)
-        requestRepository.updateDecision(
-                id,
-                decision,
-                cleanReason.isEmpty() ? null : cleanReason,
-                LocalDateTime.now()
-        );
+        LocalDateTime now = LocalDateTime.now();
+        String reasonToStore = cleanReason.isEmpty() ? null : cleanReason;
+
+        if (decision == EmployeeDecision.REJECTED) {
+            requestRepository.updateDecisionAndUnassign(id, decision, reasonToStore, now);
+        } else {
+            // APPROVED (ή PENDING αν το επιτρέπεις): απλό update decision
+            requestRepository.updateDecision(id, decision, reasonToStore, now);
+        }
 
         loadRequests(model, suId, employee.getId());
         return "employee/employee-requests-list :: content";

@@ -78,3 +78,29 @@ function wireEmployeeRequestActions() {
 // αρχικό bind
 document.addEventListener('DOMContentLoaded', wireEmployeeRequestActions);
 
+document.addEventListener('change', function (e) {
+    const sel = e.target;
+    if (!sel.classList.contains('js-decision')) return;
+
+    const form = sel.closest('form');
+    if (!form) return;
+
+    const reason = form.querySelector('.js-reason');
+    if (!reason) return;
+
+    const decision = sel.value;
+    reason.required = (decision === 'REJECTED');
+}, true);
+
+document.addEventListener('submit', function (e) {
+    const form = e.target;
+    if (!form.classList.contains('js-decision-form')) return;
+
+    const decision = form.querySelector('.js-decision')?.value;
+    const reason = (form.querySelector('.js-reason')?.value || '').trim();
+
+    if (decision === 'REJECTED' && reason.length === 0) {
+        e.preventDefault();
+        alert('Η απόρριψη απαιτεί τεκμηρίωση.');
+    }
+}, true);

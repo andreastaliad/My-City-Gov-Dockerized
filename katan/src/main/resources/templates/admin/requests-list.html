@@ -2,12 +2,18 @@
 
   <h4>Αιτήματα Πολιτών</h4>
 
+  <div th:if="${error != null}" class="alert alert-warning" th:text="${error}"></div>
+  <div th:if="${success != null}" class="alert alert-success" th:text="${success}"></div>
+
   <table class="table table-striped">
     <thead>
     <tr>
       <th>ID</th>
       <th>Τίτλος</th>
       <th>Περιγραφή</th>
+      <th>Ανάθεση</th>
+      <th>Απόφαση Υπαλλήλου</th>
+      <th>Τεκμηρίωση</th>
     </tr>
     </thead>
 
@@ -16,8 +22,63 @@
       <td th:text="${r.id}"></td>
       <td th:text="${r.title}"></td>
       <td th:text="${r.description}"></td>
+      <td>
+        <form th:action="@{/admin/requests/{id}/assign(id=${r.id})}"
+              method="post"
+              onsubmit="event.preventDefault(); postFormAndReloadAdminRequests(this);">
+
+          <input type="hidden"
+                 th:name="${_csrf.parameterName}"
+                 th:value="${_csrf.token}">
+
+          <select name="employeeId" class="form-select form-select-sm mb-1" required>
+
+            <!-- Placeholder όταν δεν έχει assignee -->
+            <option th:if="${r.assignedEmployee == null}" value="" disabled selected>
+              Επιλογή υπαλλήλου
+            </option>
+
+            <!-- Όταν έχει assignee, δείξε τον ως πληροφορία (όχι επιλογή) -->
+            <option th:if="${r.assignedEmployee != null}"
+                    th:value="${r.assignedEmployee.id}"
+                    th:text="${'Ήδη ανατεθειμένο σε: ' + r.assignedEmployee.emailAddress}"
+                    selected
+                    disabled>
+            </option>
+
+            <!-- Επιτρεπτές επιλογές (όλοι εκτός από τον ήδη assigned) -->
+            <option th:each="e : ${employeesByServiceUnit[r.requestType.serviceUnit.id]}"
+                    th:if="${r.assignedEmployee == null or e.id != r.assignedEmployee.id}"
+                    th:value="${e.id}"
+                    th:text="${e.emailAddress}">
+            </option>
+          </select>
+          <button class="btn btn-sm btn-outline-primary w-100">
+            Ανάθεση
+          </button>
+        </form>
+      </td>
+      <td>
+        <span th:if="${r.employeeDecision == null}" class="badge bg-secondary">PENDING</span>
+
+        <span th:if="${r.employeeDecision != null}"
+              class="badge bg-info"
+              th:text="${r.employeeDecision}">
+        </span>
+
+        <div class="text-muted small" th:if="${r.employeeDecidedAt != null}"
+             th:text="${#temporals.format(r.employeeDecidedAt, 'dd/MM/yyyy HH:mm')}"></div>
+      </td>
+
+      <td>
+        <span th:if="${r.employeeDecisionReason == null or #strings.isEmpty(r.employeeDecisionReason)}"
+              class="text-muted">-</span>
+
+        <span th:if="${r.employeeDecisionReason != null and !#strings.isEmpty(r.employeeDecisionReason)}"
+              th:text="${r.employeeDecisionReason}"></span>
+      </td>
+
     </tr>
     </tbody>
   </table>
-
 </div>

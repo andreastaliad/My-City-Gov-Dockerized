@@ -70,5 +70,50 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
 					   @Param("decision") EmployeeDecision decision,
 					   @Param("reason") String reason,
 					   @Param("decidedAt") LocalDateTime decidedAt);
+
+	@Modifying
+	@Query("""
+    update Request r
+       set r.assignedEmployee.id = :employeeId,
+           r.assignedAt = :assignedAt,
+           r.employeeDecision = gr.hua.dit.my.city.gov.core.model.EmployeeDecision.PENDING,
+           r.employeeDecisionReason = null,
+           r.employeeDecidedAt = null
+     where r.id = :requestId
+""")
+	int adminAssign(@Param("requestId") Long requestId,
+					@Param("employeeId") Long employeeId,
+					@Param("assignedAt") LocalDateTime assignedAt);
+
+	@Modifying
+	@Query("""
+    update Request r
+       set r.assignedEmployee.id = :employeeId,
+           r.assignedAt = :assignedAt,
+           r.employeeDecision = gr.hua.dit.my.city.gov.core.model.EmployeeDecision.PENDING,
+           r.employeeDecisionReason = null,
+           r.employeeDecidedAt = null
+     where r.id = :requestId
+       and r.assignedEmployee is null
+""")
+	int adminAssignIfUnassigned(@Param("requestId") Long requestId,
+								@Param("employeeId") Long employeeId,
+								@Param("assignedAt") LocalDateTime assignedAt);
+
+	@Modifying
+	@Query("""
+    update Request r
+       set r.employeeDecision = :decision,
+           r.employeeDecisionReason = :reason,
+           r.employeeDecidedAt = :decidedAt,
+           r.assignedEmployee = null,
+           r.assignedAt = null
+     where r.id = :requestId
+""")
+	int updateDecisionAndUnassign(@Param("requestId") Long requestId,
+								  @Param("decision") EmployeeDecision decision,
+								  @Param("reason") String reason,
+								  @Param("decidedAt") LocalDateTime decidedAt);
+
 }
 
