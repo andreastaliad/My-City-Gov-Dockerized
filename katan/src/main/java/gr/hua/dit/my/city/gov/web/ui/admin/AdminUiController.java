@@ -13,6 +13,10 @@ import gr.hua.dit.my.city.gov.core.model.Person;
 import gr.hua.dit.my.city.gov.core.model.PersonType;
 import gr.hua.dit.my.city.gov.core.model.Request;
 import gr.hua.dit.my.city.gov.core.repository.PersonRepository;
+import java.util.Set;
+import java.util.stream.Collectors;
+import gr.hua.dit.my.city.gov.core.model.RequestStatus;
+import java.time.LocalDateTime;
 import java.util.*;
 
 
@@ -70,6 +74,10 @@ public class AdminUiController {
         List<Request> requests = requestRepository.findAll();
         model.addAttribute("requests", requests);
 
+        LocalDateTime now = LocalDateTime.now();
+        //Αν το αίτημα μείνει σε συγκεκριμένη κατάσταση πάνω από Χ ημέρες
+        int overdueDays = 7; //εδώ μπαίνει το Χ
+
         // serviceUnitId -> employees
         Map<Long, List<Person>> employeesByServiceUnit = new LinkedHashMap<>();
 
@@ -83,7 +91,20 @@ public class AdminUiController {
             );
         }
 
+        Set<Long> overdueIds = requests.stream()
+                //το REQUEST_STATUS_CONSTANT κάποιο δικό μας enum value από το RequestStatus
+                .filter(r -> r.getStatus() == RequestStatus.REQUEST_STATUS_CONSTANT)
+                //από που το μετράμε
+                .filter(r -> {
+                    LocalDateTime base = (r.getAssignedAt() != null) ? r.getAssignedAt() : r.getCreatedAt();
+                    return base != null && base.isBefore(now.minusDays(overdueDays));
+                })
+                .map(Request::getId)
+                .collect(Collectors.toSet());
+
         model.addAttribute("employeesByServiceUnit", employeesByServiceUnit);
+        model.addAttribute("overdueIds", overdueIds);
+        model.addAttribute("overdueDays", overdueDays);
 
         return "admin/requests-list :: content";
     }
