@@ -81,7 +81,7 @@ public class AppointmentReminderService {
                 }
 
                 String message = String.format(
-                        "Your appointment for %s is today at%s.",
+                        "Your appointment for %s is today at %s.",
                         appointment.getService() != null ? appointment.getService() : "My City Gov",
                         appointment.getTime().toString()
                 );
