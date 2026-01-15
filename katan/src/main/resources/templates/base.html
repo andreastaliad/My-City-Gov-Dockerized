@@ -47,20 +47,54 @@
             .then(html => {
                 document.getElementById(targetId).innerHTML = html;
                 //αφού φορτώσει το fragment ξανακάνει attach handler
-                attachAppointmentFormHandler();
-                attachRequestFormHandler();
-                attachIssueFormHandler();
-                attachEmployeeFormHandler();
-                submitRequestType();
-                submitServiceUnit();
-                submitToggle();
-                confirmAction();
-                submitIssueStatus();
-                submitRequestTypeToggle();
-                submitServiceUnitToggle();
+                //if (typeof attachAppointmentFormHandler === "function") attachAppointmentFormHandler();
+                //if (typeof attachRequestFormHandler === "function") attachRequestFormHandler();
+                //if (typeof attachIssueFormHandler === "function") attachIssueFormHandler();
+
+                if (typeof attachEmployeeFormHandler === "function") attachEmployeeFormHandler();
+                if (typeof submitRequestType === "function") submitRequestType();
+                if (typeof submitServiceUnit === "function") submitServiceUnit();
+                if (typeof submitToggle === "function") submitToggle();
+                if (typeof confirmAction === "function") confirmAction();
+                if (typeof submitIssueStatus === "function") submitIssueStatus();
+                if (typeof submitRequestTypeToggle === "function") submitRequestTypeToggle();
+                if (typeof submitServiceUnitToggle === "function") submitServiceUnitToggle();
             })
             .catch(error => console.error("Error loading content:", error));
     }
+
+    document.addEventListener("submit", async (e) => {
+        const form = e.target;
+        if (!(form instanceof HTMLFormElement)) return;
+
+        // Μόνο για τα 3 citizen forms
+        const isAppointment = form.id === "appointmentForm";
+        const isIssue = form.id === "issueForm";
+        const isRequest = form.id === "requestForm";
+        if (!isAppointment && !isIssue && !isRequest) return;
+
+        e.preventDefault();
+
+        const resp = await fetch(form.action, {
+            method: form.method || "POST",
+            body: new FormData(form),
+            headers: { "X-Requested-With": "XMLHttpRequest" }
+        });
+
+        const html = await resp.text();
+
+        // Εδώ γράφεις στο tab container που ήδη χρησιμοποιείς στο home.html
+        // Στο δικό σου citizen home είναι requests/appointments/issues containers.
+        // Άρα γράφεις πίσω στο container του tab που αντιστοιχεί στη φόρμα:
+        const targetId =
+            isRequest ? "requests" :
+                isAppointment ? "appointments" :
+                    "issues";
+
+        const container = document.getElementById(targetId);
+        if (container) container.innerHTML = html;
+        else console.error("Missing tab container:", targetId);
+    }, true);
 
     //συνάρτηση για τη δημιουργία ραντεβού
     function attachAppointmentFormHandler() {
@@ -194,7 +228,8 @@
     }
 
 </script>
-<script th:src="@{/js/admin.js}"></script>
+
 <script th:src="@{/js/appointments.js}"></script>
+<script th:src="@{/js/employee.js}"></script>
 </body>
 </html>

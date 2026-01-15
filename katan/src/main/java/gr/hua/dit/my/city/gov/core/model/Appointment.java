@@ -23,6 +23,12 @@ public class Appointment {
     // Whether an SMS reminder has already been sent for this appointment
     private boolean reminderSent = false;
 
+    @Enumerated(EnumType.STRING)
+    private AppointmentStatus status = AppointmentStatus.SCHEDULED;
+
+    @Column(length = 2000)
+    private String employeeNote;
+
     //Getters-Setters
     public Long getId() {
         return id;
@@ -70,4 +76,11 @@ public class Appointment {
     public void setReminderSent(boolean reminderSent) {
         this.reminderSent = reminderSent;
     }
+
+    public AppointmentStatus getStatus() { return status; }
+    public void setStatus(AppointmentStatus status) { this.status = status; }
+
+    public String getEmployeeNote() { return employeeNote; }
+    public void setEmployeeNote(String employeeNote) { this.employeeNote = employeeNote; }
+
 }

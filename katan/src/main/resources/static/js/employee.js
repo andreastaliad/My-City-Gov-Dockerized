@@ -1,3 +1,26 @@
+function loadContent(url, targetId) {
+    const target = document.getElementById(targetId);
+    if (!target) return;
+
+    fetch(url, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+        .then(r => {
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            return r.text();
+        })
+        .then(html => {
+            target.innerHTML = html;
+
+            // Αν φόρτωσες αιτήματα, ξαναδένεις handlers (όπως ήδη κάνεις)
+            wireEmployeeRequestActions();
+        })
+        .catch(err => {
+            console.error(err);
+            target.innerHTML = `<div class="alert alert-danger">Σφάλμα φόρτωσης περιεχομένου.</div>`;
+        });
+}
+
 async function postFormAndReloadEmployeeRequests(form) {
     const body = new URLSearchParams(new FormData(form));
 
@@ -75,7 +98,34 @@ function wireEmployeeRequestActions() {
     });
 }
 
-// αρχικό bind
+function postFormAndReloadEmployeeAppointments(form) {
+    fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+        .then(r => {
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            return r.text();
+        })
+        .then(html => {
+            const target = document.getElementById('employeeAppointmentsContent');
+            if (!target) {
+                console.error('employeeAppointmentsContent not found in DOM');
+                return;
+            }
+            target.innerHTML = html;
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Σφάλμα κατά τη διαχείριση ραντεβού');
+        });
+}
+
+window.postFormAndReloadEmployeeAppointments = postFormAndReloadEmployeeAppointments;
+window.postFormAndReloadEmployeeRequests = postFormAndReloadEmployeeRequests;
+window.loadContent = loadContent;
+
 document.addEventListener('DOMContentLoaded', wireEmployeeRequestActions);
 
 document.addEventListener('change', function (e) {
