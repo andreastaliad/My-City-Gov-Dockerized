@@ -67,6 +67,8 @@ public class Request {
 
     private LocalDateTime assignedAt;
 
+    private LocalDateTime stageChangedAt;
+
     // Απόφαση υπαλλήλου για ανατεθειμένα αιτήματα
     @Enumerated(EnumType.STRING)
     @Column(name = "employee_decision", nullable = false)
@@ -182,5 +184,13 @@ public class Request {
 
     public void setEmployeeDecidedAt(LocalDateTime employeeDecidedAt) {
         this.employeeDecidedAt = employeeDecidedAt;
+    }
+
+    public LocalDateTime getStageChangedAt() {
+        return stageChangedAt;
+    }
+
+    public void setStageChangedAt(LocalDateTime stageChangedAt) {
+        this.stageChangedAt = stageChangedAt;
     }
 }

@@ -229,20 +229,29 @@ public class EmployeeRequestsController {
             return "employee/employee-requests-list :: content";
         }
 
-        request.setStatus(status);
+        //request.setStatus(status);
 
-        if (status == RequestStatus.COMPLETED || status == RequestStatus.CLOSED) {
-            if (request.getCompletedAt() == null) {
-                request.setCompletedAt(LocalDateTime.now());
-            }
-        }
+        //if (status == RequestStatus.COMPLETED || status == RequestStatus.CLOSED) {
+          //  if (request.getCompletedAt() == null) {
+            //    request.setCompletedAt(LocalDateTime.now());
+           // }
+        //}
 
         // Fix για DB constraint: due_at NOT NULL
-        if (request.getDueAt() == null) {
-            request.setDueAt(LocalDateTime.now().plusDays(7));
-        }
+        //if (request.getDueAt() == null) {
+          //  request.setDueAt(LocalDateTime.now().plusDays(7));
+        //}
 
-        request = requestRepository.save(request);
+        //request = requestRepository.save(request);
+
+        LocalDateTime now = LocalDateTime.now();
+        // ενημέρωση status + stageChangedAt
+        requestRepository.updateStatusAndStageChangedAt(id, status, now);
+
+        // αν ολοκληρώνεται, κράτα completedAt (όπως ήδη κάνεις)
+        if (status == RequestStatus.COMPLETED || status == RequestStatus.CLOSED) {
+            requestRepository.updateStatusOnly(id, status, now);
+        }
 
         // Notifications (όπως το έχεις)
         Person citizen = request.getCitizen();

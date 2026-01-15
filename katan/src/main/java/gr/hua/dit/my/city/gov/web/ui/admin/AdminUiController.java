@@ -1,5 +1,6 @@
 package gr.hua.dit.my.city.gov.web.ui.admin;
 
+import gr.hua.dit.my.city.gov.core.model.*;
 import gr.hua.dit.my.city.gov.core.repository.AppointmentRepository;
 import gr.hua.dit.my.city.gov.core.repository.IssueRepository;
 import gr.hua.dit.my.city.gov.core.repository.RequestRepository;
@@ -9,13 +10,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import gr.hua.dit.my.city.gov.core.model.Person;
-import gr.hua.dit.my.city.gov.core.model.PersonType;
-import gr.hua.dit.my.city.gov.core.model.Request;
 import gr.hua.dit.my.city.gov.core.repository.PersonRepository;
 import java.util.Set;
 import java.util.stream.Collectors;
-import gr.hua.dit.my.city.gov.core.model.RequestStatus;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -92,13 +89,27 @@ public class AdminUiController {
         }
 
         Set<Long> overdueIds = requests.stream()
-                //το REQUEST_STATUS_CONSTANT κάποιο δικό μας enum value από το RequestStatus
-                .filter(r -> r.getStatus() == RequestStatus.REQUEST_STATUS_CONSTANT)
-                //από που το μετράμε
+                //αγνοεί ολοκληρωμένα
+                .filter(r -> r.getStatus() != RequestStatus.COMPLETED)
+                .filter(r -> r.getStatus() != RequestStatus.CLOSED)
+
+                //ελέγχει την απόφαση του υπαλλήλου
+                .filter(r ->
+                        r.getEmployeeDecision() == null
+                                || r.getEmployeeDecision() == EmployeeDecision.PENDING
+                )
+
+                //εύρεση του πότε έμεινε
                 .filter(r -> {
-                    LocalDateTime base = (r.getAssignedAt() != null) ? r.getAssignedAt() : r.getCreatedAt();
-                    return base != null && base.isBefore(now.minusDays(overdueDays));
+                    LocalDateTime base =
+                            r.getAssignedAt() != null
+                                    ? r.getAssignedAt()
+                                    : r.getCreatedAt();
+
+                    return base != null &&
+                            base.isBefore(LocalDateTime.now().minusDays(overdueDays));
                 })
+
                 .map(Request::getId)
                 .collect(Collectors.toSet());
 

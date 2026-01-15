@@ -115,5 +115,17 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
 								  @Param("reason") String reason,
 								  @Param("decidedAt") LocalDateTime decidedAt);
 
+	@Modifying
+	@Query("""
+  update Request r
+     set r.status = :status,
+         r.stageChangedAt = :now
+   where r.id = :id
+""")
+	int updateStatusAndStageChangedAt(@Param("id") Long id,
+									  @Param("status") RequestStatus status,
+									  @Param("now") LocalDateTime now);
+
+
 }
 
