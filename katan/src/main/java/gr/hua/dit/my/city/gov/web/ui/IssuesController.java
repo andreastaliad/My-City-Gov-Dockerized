@@ -9,6 +9,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
+//Controller υπεύθυνο για τα προβλήματα που αναφέρουν οι πολίτες
+
 @Controller
 public class IssuesController {
 
@@ -18,11 +20,13 @@ public class IssuesController {
     @Autowired
     private CurrentUserProvider currentUserProvider;
 
+    //Φόρμα αναφοράς προβλήματος
     @GetMapping("/issues/form")
     public String showIssuesForm() {
         return "issues-form :: content";
     }
 
+    //Αποθήκευση αναφοράς προβλήματος
     @PostMapping("/issues")
     public String saveIssue(Issue issue) {
         // associate with current user, if logged in

@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
 /**
- * UI controller for managing teacher/student registration.
+ * UI controller for managing citizen registration.
  */
 @Controller
 public class RegistrationController {

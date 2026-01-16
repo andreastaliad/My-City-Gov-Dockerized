@@ -18,9 +18,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.util.ArrayList;
 import java.util.List;
+
+//Controller υπεύθυνος για τα αιτήματα πολιτών
 
 @Controller
 public class RequestsController {
@@ -45,6 +46,7 @@ public class RequestsController {
         this.personRepository = personRepository;
     }
 
+    //Φόρμα δημιουργίας αιτήματος
     @GetMapping("/requests/form")
     public String form(Model model) {
         model.addAttribute("request", new Request());
@@ -52,6 +54,7 @@ public class RequestsController {
         return "requests-form :: content";
     }
 
+    //Προβολή αιτημάτων του συνδεδεμένου πολίτη
     @GetMapping("/requests/my")
     public String myRequests(Model model, Authentication authentication) {
         Person citizen = resolveCurrentPerson(authentication);
@@ -60,6 +63,7 @@ public class RequestsController {
         return "requests-list :: content";
     }
 
+    //Αποθήκευση αιτήματος
     @PostMapping("/requests")
     public String saveRequest(Request request,
                              @RequestParam(value = "requestTypeId") Long requestTypeId,

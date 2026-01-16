@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.server.ResponseStatusException;
-
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -27,6 +26,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
+
+//Controller υπεύθυνο για τα ραντεβού των πολιτών
 
 @Controller
 public class AppointmentsController {
@@ -42,13 +43,14 @@ public class AppointmentsController {
     @Autowired
     private CurrentUserProvider currentUserProvider;
 
+    //Φόρμα για κλείσιμο ραντεβού
     @GetMapping("/appointments/form")
     public String showAppointmentForm(Model model) {
         model.addAttribute("serviceUnits", serviceUnitRepository.findByActiveTrueOrderByNameAsc());
         return "appointments-form :: content";
     }
 
-
+    //Εμφανίζει τις διαθέσιμες ώρες για ραντβού στην υπηρεσία
     @GetMapping("/appointments/available-times")
     @ResponseBody
     public List<String> availableTimes(
@@ -58,7 +60,6 @@ public class AppointmentsController {
         LocalDate today = LocalDate.now();
         LocalTime now = LocalTime.now();
 
-        // dont allow past dates
         if (date.isBefore(today)) {
             return List.of();
         }
@@ -82,7 +83,6 @@ public class AppointmentsController {
             LocalTime lastStart = s.getEndTime().minusMinutes(step);
 
             while (!t.isAfter(lastStart)) {
-                // For today, skip time slots that are already in the past.
                 if (date.isEqual(today) && t.isBefore(now)) {
                     t = t.plusMinutes(step);
                     continue;
@@ -101,6 +101,7 @@ public class AppointmentsController {
         return slots.stream().map(fmt::format).toList();
     }
 
+    //Εμφανίζει διαθέσιμες μέρες για την υπηρεσία
     @GetMapping("/appointments/available-days")
     @ResponseBody
     public List<Integer> availableDays(@RequestParam Long serviceUnitId) {
@@ -115,6 +116,7 @@ public class AppointmentsController {
                 .toList();
     }
 
+    //Μαζί με τις μέρες δείχνει και τις αντίστοιχες μελλοντικές ημερομηνίες
     @GetMapping("/appointments/available-dates")
     @ResponseBody
     public List<String> availableDates(
@@ -133,8 +135,6 @@ public class AppointmentsController {
 
         if (allowedDow.isEmpty()) return List.of();
 
-        // Allow booking from today (current date) onwards; past dates are
-        // filtered out by availableTimes/saveAppointment.
         LocalDate start = LocalDate.now();
         LocalDate end = start.plusDays(daysAhead - 1);
 
@@ -159,13 +159,12 @@ public class AppointmentsController {
 
         LocalDate today = LocalDate.now();
 
-        // 1) Date not in the past (ή όχι σήμερα)
+        //Date not in the past (ή όχι σήμερα)
         if (appointment.getDate() == null || appointment.getDate().isBefore(today)) {
-            // γύρνα error fragment ή redirect με μήνυμα
             return "appointments-form :: content";
         }
 
-        // 2) Αν date == today, ώρα να μην είναι στο παρελθόν
+        //Αν date == today, ώρα να μην είναι στο παρελθόν
         if (appointment.getDate().isEqual(today) && appointment.getTime() != null) {
             LocalTime now = LocalTime.now();
             if (appointment.getTime().isBefore(now)) {
