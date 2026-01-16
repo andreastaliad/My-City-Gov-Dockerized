@@ -46,11 +46,6 @@
             .then(response => response.text())
             .then(html => {
                 document.getElementById(targetId).innerHTML = html;
-                //αφού φορτώσει το fragment ξανακάνει attach handler
-                //if (typeof attachAppointmentFormHandler === "function") attachAppointmentFormHandler();
-                //if (typeof attachRequestFormHandler === "function") attachRequestFormHandler();
-                //if (typeof attachIssueFormHandler === "function") attachIssueFormHandler();
-
                 if (typeof attachEmployeeFormHandler === "function") attachEmployeeFormHandler();
                 if (typeof submitRequestType === "function") submitRequestType();
                 if (typeof submitServiceUnit === "function") submitServiceUnit();
@@ -83,9 +78,6 @@
 
         const html = await resp.text();
 
-        // Εδώ γράφεις στο tab container που ήδη χρησιμοποιείς στο home.html
-        // Στο δικό σου citizen home είναι requests/appointments/issues containers.
-        // Άρα γράφεις πίσω στο container του tab που αντιστοιχεί στη φόρμα:
         const targetId =
             isRequest ? "requests" :
                 isAppointment ? "appointments" :
@@ -219,7 +211,7 @@
                     return;
                 }
                 // Reload το ίδιο tab (fragment)
-                loadContent('/employee/requests', 'employeeTab'); // <- το id του tab container σου
+                loadContent('/employee/requests', 'employeeTab');
             })
             .catch(err => {
                 console.error(err);
@@ -228,7 +220,6 @@
     }
 
 </script>
-
 <script th:src="@{/js/appointments.js}"></script>
 <script th:src="@{/js/employee.js}"></script>
 </body>
