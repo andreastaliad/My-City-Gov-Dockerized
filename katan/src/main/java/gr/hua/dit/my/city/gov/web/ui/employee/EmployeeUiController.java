@@ -12,6 +12,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+//Controller υπεύθυνο για το ui των υπαλλήλων
+
 @Controller
 @RequestMapping("/employee")
 @PreAuthorize("hasRole('EMPLOYEE')")
@@ -32,11 +34,13 @@ public class EmployeeUiController {
         this.appointmentRepository = appointmentRepository;
     }
 
+    //Home υπαλλήλων (διαφορετικό από τον admin)
     @GetMapping("/home")
     public String home() {
         return "employee/employee-home";
     }
 
+    //Εμφάνιση γενικών στατιστικών
     @GetMapping("/overview")
     public String overview(Model model) {
         Person employee = resolveCurrentEmployee();

@@ -8,18 +8,17 @@ import gr.hua.dit.my.city.gov.core.security.CurrentUser;
 import gr.hua.dit.my.city.gov.core.security.CurrentUserProvider;
 import gr.hua.dit.my.city.gov.core.service.EmailSender;
 import gr.hua.dit.my.city.gov.core.service.SmsSender;
-
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+
+//Controller υπεύθυνο για την διαχείριση αιτημάτων που έχουν ανατεθεί στον υπάλληλο/τμήμα του
 
 @Controller
 @RequestMapping("/employee/requests")
@@ -40,7 +39,7 @@ public class EmployeeRequestsController {
         List<Request> mine = requestRepository
                 .findByRequestType_ServiceUnit_IdAndAssignedEmployee_IdOrderByCreatedAtDesc(serviceUnitId, employeeId);
 
-        // merge χωρίς διπλότυπα
+        //merge χωρίς διπλότυπα
         Map<Long, Request> map = new LinkedHashMap<>();
         for (Request r : unassigned) map.put(r.getId(), r);
         for (Request r : mine) map.put(r.getId(), r);
@@ -93,14 +92,14 @@ public class EmployeeRequestsController {
 
         Long suId = employee.getServiceUnit().getId();
 
-        // Προτείνω να βλέπει: unassigned + τα δικά του
+        //Βλέπει: unassigned + τα δικά του
         List<Request> unassigned = requestRepository
                 .findByRequestType_ServiceUnit_IdAndAssignedEmployeeIsNullOrderByCreatedAtDesc(suId);
 
         List<Request> mine = requestRepository
                 .findByRequestType_ServiceUnit_IdAndAssignedEmployee_IdOrderByCreatedAtDesc(suId, employee.getId());
 
-        // merge χωρίς διπλότυπα
+        //merge χωρίς διπλότυπα
         Map<Long, Request> map = new LinkedHashMap<>();
         for (Request r : unassigned) map.put(r.getId(), r);
         for (Request r : mine) map.put(r.getId(), r);
@@ -110,7 +109,7 @@ public class EmployeeRequestsController {
         model.addAttribute("requests", reqs);
         model.addAttribute("employeeId", employee.getId());
 
-        // ADDITIVE: φόρτωσε σχόλια για όσα requests ήδη εμφανίζεις
+        //Φόρτωση σχολίων για όσα requests ήδη εμφανίζει
         Map<Long, List<RequestComment>> commentsByRequestId = new LinkedHashMap<>();
         for (Request r : reqs) {
             commentsByRequestId.put(
@@ -154,7 +153,7 @@ public class EmployeeRequestsController {
             return "employee/employee-requests-list :: content";
         }
 
-        // Atomic claim (όπως το έχεις)
+        //Atomic claim
         requestRepository.claimIfUnassigned(id, employee.getId(), LocalDateTime.now());
 
         loadRequests(model, suId, employee.getId());
@@ -181,7 +180,7 @@ public class EmployeeRequestsController {
 
         Long suId = employee.getServiceUnit().getId();
 
-        // Μόνο αν είναι δικό του (όπως το έχεις)
+        //Μόνο αν είναι δικό του
         requestRepository.unclaimIfOwned(id, personId);
 
         loadRequests(model, suId, employee.getId());
@@ -229,31 +228,16 @@ public class EmployeeRequestsController {
             return "employee/employee-requests-list :: content";
         }
 
-        //request.setStatus(status);
-
-        //if (status == RequestStatus.COMPLETED || status == RequestStatus.CLOSED) {
-          //  if (request.getCompletedAt() == null) {
-            //    request.setCompletedAt(LocalDateTime.now());
-           // }
-        //}
-
-        // Fix για DB constraint: due_at NOT NULL
-        //if (request.getDueAt() == null) {
-          //  request.setDueAt(LocalDateTime.now().plusDays(7));
-        //}
-
-        //request = requestRepository.save(request);
-
         LocalDateTime now = LocalDateTime.now();
-        // ενημέρωση status + stageChangedAt
+        //ενημέρωση status + stageChangedAt
         requestRepository.updateStatusAndStageChangedAt(id, status, now);
 
-        // αν ολοκληρώνεται, κράτα completedAt (όπως ήδη κάνεις)
+        //αν ολοκληρώνεται, κράτα completedAt
         if (status == RequestStatus.COMPLETED || status == RequestStatus.CLOSED) {
             requestRepository.updateStatusOnly(id, status, now);
         }
 
-        // Notifications (όπως το έχεις)
+        // Notifications
         Person citizen = request.getCitizen();
         if (citizen != null) {
             String message = String.format(
@@ -308,7 +292,7 @@ public class EmployeeRequestsController {
             return "employee/employee-requests-list :: content";
         }
 
-        // Αν θες: μόνο αν είναι assigned σε αυτόν
+        // Μόνο αν είναι assigned σε αυτόν
         if (request.getAssignedEmployee() == null
                 || !request.getAssignedEmployee().getId().equals(employee.getId())) {
             loadRequests(model, suId, employee.getId());
@@ -385,7 +369,7 @@ public class EmployeeRequestsController {
         if (decision == EmployeeDecision.REJECTED) {
             requestRepository.updateDecisionAndUnassign(id, decision, reasonToStore, now);
         } else {
-            // APPROVED (ή PENDING αν το επιτρέπεις): απλό update decision
+            // APPROVED (ή PENDING): απλό update decision
             requestRepository.updateDecision(id, decision, reasonToStore, now);
         }
 
