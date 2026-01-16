@@ -7,6 +7,9 @@ import gr.hua.dit.my.city.gov.web.rest.dto.EmployeeCreateRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+//Service για την εγγραφή υπαλλήλου
+//Χειρίζεται την δημιουργία υπαλλήλων
+
 @Service
 public class EmployeeRegistrationService {
     private final PersonRepository personRepository;
@@ -17,6 +20,7 @@ public class EmployeeRegistrationService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    //Εγγράφει νέο υπάλληλο στο σύστημα και ο κωδικός είναι hashed
     public void registerEmployee(EmployeeCreateRequest request) {
         Person employee = new Person();
         employee.setEmailAddress(request.getEmailAddress());
@@ -26,6 +30,7 @@ public class EmployeeRegistrationService {
         employee.setAmka(request.getAmka());
         employee.setPhoneNumber(request.getPhoneNumber());
         employee.setType(PersonType.EMPLOYEE);
+        //αποθήκευση μόνο του hashed κωδικού
         employee.setPasswordHash(passwordEncoder.encode(request.getPassword()));
         personRepository.save(employee);
     }
