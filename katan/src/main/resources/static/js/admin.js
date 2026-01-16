@@ -1,3 +1,5 @@
+//Admin UI JavaScript
+
 function csrfHeaders() {
     const tokenMeta = document.querySelector('meta[name="_csrf"]');
     const headerMeta = document.querySelector('meta[name="_csrf_header"]');
@@ -176,7 +178,7 @@ function submitServiceUnitToggle(form) {
                 alert("Αποτυχία αλλαγής κατάστασης υπηρεσίας");
                 return;
             }
-            // ΜΕΝΕΙΣ ΣΤΟ ΙΔΙΟ TAB
+            //Μένει στο ιδιο tab
             loadContent('/admin/service-units', 'adminTab');
         })
         .catch(() => alert("Σφάλμα επικοινωνίας με τον server"));
@@ -228,7 +230,6 @@ function submitEmployeesAction(form) {
     submitPostAndReload(form, '/admin/service-units/' + sid + '/employees');
 }
 
-
 function saveServiceUnitEmployees(serviceUnitId) {
     const select = document.getElementById('employees-' + serviceUnitId);
     if (!select) {
@@ -260,7 +261,6 @@ function saveServiceUnitEmployees(serviceUnitId) {
 }
 
 function postFormAndReloadAdminRequests(form) {
-
     const url = form.action;
     const formData = new FormData(form);
 

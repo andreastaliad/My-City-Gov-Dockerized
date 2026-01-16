@@ -1,3 +1,5 @@
+//Appointments Booking JavaScript
+
 (function () {
     function resetSelect(select, msg) {
         select.innerHTML = "";
@@ -38,7 +40,7 @@
         const form = document.getElementById("appointmentForm");
         if (!form) return;
 
-        // Αν έχει ήδη δεθεί, μην ξανακάνεις init (αυτό έφτιαξε το “κλείνει μόνο του”)
+        // Αν έχει ήδη δεθεί, δεν ξανακάνει init
         if (form.dataset.bound === "1") return;
         form.dataset.bound = "1";
 
@@ -99,10 +101,10 @@
         });
     }
 
-    // 1) αρχικό load
+    // αρχικό load
     document.addEventListener("DOMContentLoaded", bindAppointmentsIfPresent);
 
-    // 2) fragments: παρακολούθηση DOM για να κάνουμε init όταν μπει το fragment
+    // fragments: παρακολούθηση DOM για να κάνουμε init όταν μπει το fragment
     const obs = new MutationObserver(() => bindAppointmentsIfPresent());
     obs.observe(document.documentElement, { childList: true, subtree: true });
 })();

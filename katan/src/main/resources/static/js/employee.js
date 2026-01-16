@@ -1,3 +1,6 @@
+//Employee UI JavaScript
+
+//Φόρτωση fragment
 function loadContent(url, targetId) {
     const target = document.getElementById(targetId);
     if (!target) return;
@@ -21,6 +24,7 @@ function loadContent(url, targetId) {
         });
 }
 
+//Υποβολή φόρμας με AJAX και δυναμική ανανέωση fragment
 async function postFormAndReloadEmployeeRequests(form) {
     const body = new URLSearchParams(new FormData(form));
 
@@ -44,9 +48,8 @@ async function postFormAndReloadEmployeeRequests(form) {
     }
 }
 
+//Ανανέωση tab με αποφυγή page reload
 async function reloadEmployeeRequestsTab() {
-    // Αυτό πρέπει να δείχνει στο div/container του tab που βάζεις το fragment content.
-    // Π.χ. <div id="employee-requests-tab-content"></div>
     const container = document.querySelector('#employee-requests-tab-content');
     if (!container) return;
 
@@ -55,13 +58,13 @@ async function reloadEmployeeRequestsTab() {
     });
 
     if (!resp.ok) {
-        // fallback: full reload (αν θες)
+        // fallback: full reload
         window.location.reload();
         return;
     }
 
     container.innerHTML = await resp.text();
-    wireEmployeeRequestActions(); // ξαναδένουμε handlers μετά το replace
+    wireEmployeeRequestActions(); //ξαναδένουμε handlers μετά το replace
 }
 
 function wireEmployeeRequestActions() {
@@ -78,13 +81,13 @@ function wireEmployeeRequestActions() {
                 headers: { 'X-Requested-With': 'XMLHttpRequest' }
             });
 
-            // Αν κάτι πάει στραβά (500), μην σου ανοίξει whitelabel. Κάνε reload το tab ή full reload.
+            // Αν κάτι πάει στραβά (500), να μην ανοίξει whitelabel. Κάνει reload το tab ή full reload.
             if (!resp.ok) {
                 await reloadEmployeeRequestsTab();
                 return;
             }
 
-            // Ο controller σου επιστρέφει fragment HTML -> αντικαθιστούμε απευθείας το tab content
+            // Ο controller επιστρέφει fragment HTML -> αντικαθιστούμε απευθείας το tab content
             const html = await resp.text();
             const container = document.querySelector('#employee-requests-tab-content');
             if (container) {
