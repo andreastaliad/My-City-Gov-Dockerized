@@ -2,6 +2,8 @@ package gr.hua.dit.my.city.gov.core.model;
 
 import jakarta.persistence.*;
 
+//Οντότητα που δείχνει ένα πρόβλημα/θέμα που δηλώνει ένας πολίτης(π.χ. σπασμένο πεζοδρόμιο κλπ.)
+
 @Entity
 public class Issue {
 
@@ -13,16 +15,16 @@ public class Issue {
     private String description;
     private String location;
 
-    // ID of the person (citizen) who reported this issue
+    //Ποιός πολίτης το δήλωσε
     private Long personId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private IssueStatus status = IssueStatus.REPORTED;
 
-    //Getters-Setters
     public Issue() {}
 
+    //Getters-Setters
     public Long getId() {
         return id;
     }

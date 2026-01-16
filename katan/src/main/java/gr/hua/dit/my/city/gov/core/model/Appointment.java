@@ -4,8 +4,11 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+//Οντότητα που δείχνει το ραντεβού μεταξύ ενός πολίτη και μιας υπηρεσίας
+
 @Entity
 public class Appointment {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -17,7 +20,7 @@ public class Appointment {
     @Column(name = "service_unit_id")
     private Long serviceUnitId;
 
-    // ID of the person (citizen) who booked this appointment
+    //Ποιός πολίτης έκλεισε το ραντεβού
     private Long personId;
 
     // Whether an SMS reminder has already been sent for this appointment
@@ -26,6 +29,7 @@ public class Appointment {
     @Enumerated(EnumType.STRING)
     private AppointmentStatus status = AppointmentStatus.SCHEDULED;
 
+    //Προαιρετική σημείωση από τον υπάλληλο
     @Column(length = 2000)
     private String employeeNote;
 

@@ -4,8 +4,11 @@ import jakarta.persistence.*;
 import gr.hua.dit.my.city.gov.core.util.ProtocolNumberGenerator;
 import java.time.LocalDateTime;
 
+//Οντότητα που αναπαριστά αίτημα πολίτη
+
 @Entity
 public class Request {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -13,14 +16,15 @@ public class Request {
     private String title;
     private String description;
 
-    // ID of the person (citizen) who created this request
+    //Το id του πολίτη που το δημιούργησε
     private Long personId;
 
+    //Προαιρετική κατηγοριοποίηση του αιτήματος
     @ManyToOne(optional = true)
     @JoinColumn(name = "request_type_id", nullable = true)
     private RequestType requestType;
 
-    // Citizen is represented by Person where Person.type == CITIZEN
+    //Πολίτης
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "citizen_id", nullable = false)
     private Person citizen;
@@ -28,39 +32,26 @@ public class Request {
     // Comma-separated MinIO object keys for uploaded attachments
     private String attachmentKey;
 
+    //Τωρινή κατάσταση
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private RequestStatus status = RequestStatus.CREATED;
 
-    @PrePersist
-    public void prePersist() {
-        if (status == null) status = RequestStatus.CREATED;
-
-        if (createdAt == null) createdAt = LocalDateTime.now();
-
-        if (protocolNumber == null) protocolNumber = ProtocolNumberGenerator.newProtocol();
-
-        // dueAt = createdAt + SLA (απόΑνάθεση αιτήματος σε συγκεκριμένο υπάλληλο (ή ανάληψη). τον τύπο)
-        if (dueAt == null) {
-            Integer sla = (requestType != null ? requestType.getSlaDays() : null);
-            if (sla == null) sla = 10; // fallback (ή πέτα exception αν θες να είναι υποχρεωτικό)
-            dueAt = createdAt.plusDays(sla);
-        }
-    }
-
-
+    //Μοναδικός αριθμός πρωτοκόλλου που δημιουργείται κατά την δημιουργία του αιτήματος
     @Column(name = "protocol_number", nullable = false, unique = true, updatable = false, length = 32)
     private String protocolNumber;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    //Προθεσμία με βάση το sldays
     @Column(nullable = false)
     private LocalDateTime dueAt;
 
     @Column
     private LocalDateTime completedAt;
 
+    //σε ποιόν υπάλληλο ανατέθηκε το αίτημα
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "assigned_employee_id")
     private Person assignedEmployee;
@@ -79,6 +70,23 @@ public class Request {
 
     @Column(name = "employee_decided_at")
     private LocalDateTime employeeDecidedAt;
+
+    //Αρχικοποίηση των default πεδίων
+    @PrePersist
+    public void prePersist() {
+        if (status == null) status = RequestStatus.CREATED;
+
+        if (createdAt == null) createdAt = LocalDateTime.now();
+
+        if (protocolNumber == null) protocolNumber = ProtocolNumberGenerator.newProtocol();
+
+        // dueAt = createdAt + SLA
+        if (dueAt == null) {
+            Integer sla = (requestType != null ? requestType.getSlaDays() : null);
+            if (sla == null) sla = 10; // fallback (ή exception αν είναι υποχρεωτικό)
+            dueAt = createdAt.plusDays(sla);
+        }
+    }
 
     public Request() {}
 

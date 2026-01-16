@@ -2,6 +2,8 @@ package gr.hua.dit.my.city.gov.core.model;
 
 import jakarta.persistence.*;
 
+//Παρουσιάζει τις υπηρεσίες-είναι υπεύθυνες για την διαχείριση τύπων αιτημάτων και την παράθεση ραντεβού σε πολίτες
+
 @Entity
 @Table(name = "service_unit")
 public class ServiceUnit {
@@ -13,6 +15,7 @@ public class ServiceUnit {
     @Column(nullable = false, unique = true)
     private String name;
 
+    //Προαιρετικό
     @Column(length = 500)
     private String description;
 
@@ -28,7 +31,7 @@ public class ServiceUnit {
         this.active = true;
     }
 
-    // Getters & Setters
+    //Getters-Setters
 
     public Long getId() {
         return id;

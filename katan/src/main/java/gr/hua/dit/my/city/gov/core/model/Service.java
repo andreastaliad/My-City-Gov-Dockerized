@@ -20,7 +20,8 @@ public class Service {
     @Column(length = 2000)
     private String description;
 
-    private Integer slDays; //ουσιαστικα ειναι το deadline για να ολοκληρωθει ενα αιτημα(service level days) πχ αδεια σταθμευσης εχει sl=5 μερες
+    //Είναι η προθεσμία για το πόσο μένει ένα αίτημα σε μια κατάσταση/ολοκληρώνεται ένα αίτημα
+    private Integer slDays;
 
     private String department;
 
@@ -40,6 +41,7 @@ public class Service {
         this.department = department;
     }
 
+    //Getters-Setters
     public Long getServiceId() {
         return serviceId;
     }

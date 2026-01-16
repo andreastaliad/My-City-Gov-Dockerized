@@ -4,6 +4,10 @@ import jakarta.persistence.*;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 
+//Είναι οντότητα που καθορίζει το εβδομαδιαίο πρόγραμμα μιας υπηρεσίας
+//Χρησιμοποιείται για την δημιουργία ραντεβού-επιβεβαίωση
+//Παρουσιάζει διαθεσιμότητα ανά μέρα μαζί με ώρες λειτουργίας και διάρκεια ραντεβού
+
 @Entity
 @Table(name = "service_unit_schedule")
 public class ServiceUnitSchedule {
@@ -12,10 +16,12 @@ public class ServiceUnitSchedule {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    //Σε ποιά υπηρεσία ανήκει το πρόγραμμα
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "service_unit_id", nullable = false)
     private ServiceUnit serviceUnit;
 
+    //Για ποιές μέρες ισχύει το πρόγραμμα
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 12)
     private DayOfWeek dayOfWeek;
@@ -26,15 +32,17 @@ public class ServiceUnitSchedule {
     @Column(nullable = false)
     private LocalTime endTime;
 
+    //Διάρκεια ραντεβού
     @Column(nullable = false)
     private int slotMinutes = 15;
 
+    //Δείχνει αν είναι ενεργή η εισαγωγή στο πρόγραμμα
     @Column(nullable = false)
     private boolean active = true;
 
     public ServiceUnitSchedule() {}
 
-    // getters/setters
+    //Getters-Setters
     public Long getId() { return id; }
 
     public ServiceUnit getServiceUnit() { return serviceUnit; }

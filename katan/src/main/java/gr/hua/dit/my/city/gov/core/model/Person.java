@@ -1,10 +1,12 @@
 package gr.hua.dit.my.city.gov.core.model;
 
 import jakarta.persistence.*;
-
 import org.hibernate.annotations.CreationTimestamp;
-
 import java.time.Instant;
+
+//Αναπαριστά τον χρήστη του συστήματος, αυτός μπορεί να είναι πολίτης ή υπάλληλος
+//Χρησιμοποιείται για επαλήθευση, εξουσιοδότηση και συμπεριφορά domain
+//Όλες οι ευαίσθητες πληροφορίες είναι μοναδικές σε επίπεδο database
 
 @Entity
 @Table(
@@ -45,17 +47,21 @@ public class Person {
     @Column(name = "email_address", nullable = false, length = 100)
     private String emailAddress;
 
+    //Τύπος ατόμου(πολίτης ή υπάλληλος)
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false, length = 20)
     private PersonType type;
 
+    //Bcrypt ή ισοδύναμος hashed κωδικός->δεν αποθηκεύονται ποτέ plain-text κωδικοί
     @Column(name = "password_hash", nullable = false, length = 255)
     private String passwordHash;
 
+    //Timestamp δημιουργίας οντότητας-αυτόματη συμπλήρωση από Hibernate
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
+    //Σε ποιά υπηρεσία ανήκει το άτομο(εφαρμόζεται σε υπαλλήλους)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="service_unit_id")
     private ServiceUnit serviceUnit;
@@ -85,6 +91,7 @@ public class Person {
         this.createdAt = createdAt;
     }
 
+    //Getters-Setters
     public Long getId() {
         return id;
     }

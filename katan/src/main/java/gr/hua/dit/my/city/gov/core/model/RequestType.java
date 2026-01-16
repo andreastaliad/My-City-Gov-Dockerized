@@ -2,6 +2,9 @@ package gr.hua.dit.my.city.gov.core.model;
 
 import jakarta.persistence.*;
 
+//Κατηγοριοποιεί τα αιτήματα των πολιτών
+//Κάθε είδος αιτήματος ανήκει σε υπηρεσία και έχει προθεσμία
+
 @Entity
 public class RequestType {
 
@@ -14,10 +17,12 @@ public class RequestType {
 
     private String description;
 
+    //Ποιά υπηρεσία είναι υπεύθυνη για τον τύπο
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "service_unit_id", nullable = false)
     private ServiceUnit serviceUnit;
 
+    //Ελέγχει αν αυτός ο τύπος μπορεί να χρησιμοποιηθεί από τους πολίτες
     @Column(nullable = false)
     private boolean active = true;
 
@@ -26,7 +31,7 @@ public class RequestType {
 
     public RequestType() {}
 
-    // Getters / Setters
+    //Getters-Setters
     public Long getId() { return id; }
 
     public String getName() { return name; }
