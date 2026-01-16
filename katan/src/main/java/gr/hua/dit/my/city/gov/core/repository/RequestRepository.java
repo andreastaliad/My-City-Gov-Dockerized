@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -22,7 +21,7 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
 	List<Request> findByRequestType_ServiceUnit_IdAndAssignedEmployee_IdOrderByCreatedAtDesc(Long serviceUnitId, Long employeeId);
 	List<Request> findByRequestType_ServiceUnit_IdAndAssignedEmployeeIsNullOrderByCreatedAtDesc(Long serviceUnitId);
 
-	// Atomic claim: παίρνω το αίτημα μόνο αν ΔΕΝ έχει assignee
+	//Atomic claim: παίρνω το αίτημα μόνο αν ΔΕΝ έχει assignee
 	@Modifying
 	@Query("""
         update Request r
@@ -35,7 +34,7 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
 						  @Param("employeeId") Long employeeId,
 						  @Param("assignedAt") LocalDateTime assignedAt);
 
-	// Unclaim: μόνο ο ίδιος που το έχει μπορεί να το αφήσει
+	//Unclaim: μόνο ο ίδιος που το έχει μπορεί να το αφήσει
 	@Modifying
 	@Query("""
         update Request r
@@ -47,6 +46,7 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
 	int unclaimIfOwned(@Param("requestId") Long requestId,
 					   @Param("employeeId") Long employeeId);
 
+	//Update Status: ενημερώνει την κατάσταση του αιτήματος και κάνει timestamp ολοκλήρωσης
 	@Modifying
 	@Query("""
     update Request r
@@ -58,6 +58,7 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
 						 @Param("status") RequestStatus status,
 						 @Param("completedAt") LocalDateTime completedAt);
 
+	//Update Decision: καταγράφει την απόφαση του υπαλλήλου
 	@Modifying
 	@Query("""
     update Request r
@@ -71,6 +72,7 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
 					   @Param("reason") String reason,
 					   @Param("decidedAt") LocalDateTime decidedAt);
 
+	//Admin Assign: ανάθεση από τον admin
 	@Modifying
 	@Query("""
     update Request r
@@ -85,6 +87,7 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
 					@Param("employeeId") Long employeeId,
 					@Param("assignedAt") LocalDateTime assignedAt);
 
+	//Admin Assign If Unassigned: ανάθεση από admin αν το αίτημα δεν έχει ανατεθεί
 	@Modifying
 	@Query("""
     update Request r
@@ -100,6 +103,7 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
 								@Param("employeeId") Long employeeId,
 								@Param("assignedAt") LocalDateTime assignedAt);
 
+	//Update Decision And Unassign: οριστικοποιεί την απόφαση και αφαιρεί την ανάθεση
 	@Modifying
 	@Query("""
     update Request r
@@ -115,6 +119,7 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
 								  @Param("reason") String reason,
 								  @Param("decidedAt") LocalDateTime decidedAt);
 
+	//Update Status And Stage Changed At: ενημερώνει την κατάσταση του αιτήματος και καταγράφει την αλλαγή αυτή
 	@Modifying
 	@Query("""
   update Request r
