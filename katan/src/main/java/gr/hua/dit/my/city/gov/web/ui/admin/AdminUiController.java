@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 import java.time.LocalDateTime;
 import java.util.*;
 
-
+//Controller υπεύθυνος για την βασική ui λειτουργία του admin
 @Controller
 @RequestMapping("/admin")
 @PreAuthorize("hasRole('ADMIN')")
@@ -48,7 +48,7 @@ public class AdminUiController {
         return "admin/users-menu :: content";
     }
 
-    // πίνακας υπαλλήλων
+    //πίνακας υπαλλήλων
     @GetMapping("/users/employees")
     public String employees(Model model) {
         model.addAttribute("employees",
@@ -56,7 +56,7 @@ public class AdminUiController {
         return "admin/employees-list :: content";
     }
 
-    // πίνακας πολιτών
+    //πίνακας πολιτών
     @GetMapping("/users/citizens")
     public String citizens(Model model) {
         model.addAttribute("citizens",
@@ -75,7 +75,7 @@ public class AdminUiController {
         //Αν το αίτημα μείνει σε συγκεκριμένη κατάσταση πάνω από Χ ημέρες
         int overdueDays = 7; //εδώ μπαίνει το Χ
 
-        // serviceUnitId -> employees
+        //serviceUnitId -> employees
         Map<Long, List<Person>> employeesByServiceUnit = new LinkedHashMap<>();
 
         for (Request r : requests) {
@@ -149,7 +149,7 @@ public class AdminUiController {
         return "admin/admin-overview :: content";
     }
 
-    //employee creation form
+    //φόρμα δημιουργίας υπαλλήλου
     @GetMapping("/employees/new")
     public String newEmployee() {
         return "admin/employee-create-form :: content";

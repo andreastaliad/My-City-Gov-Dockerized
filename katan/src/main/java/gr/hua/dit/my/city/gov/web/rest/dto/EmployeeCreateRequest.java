@@ -1,14 +1,18 @@
 package gr.hua.dit.my.city.gov.web.rest.dto;
 
+//DTO για την δημιουργία νέου υπαλλήλου μέσω του admin ui
+
 public class EmployeeCreateRequest {
     private String emailAddress;
     private String firstName;
     private String lastName;
+    //Plain-text κωδικός εισάγεται και έπειτα γίνεται hash
     private String password;
     private String afm;
     private String amka;
     private String phoneNumber;
 
+    //Getters-Setters
     public String getEmailAddress() {
         return emailAddress;
     }

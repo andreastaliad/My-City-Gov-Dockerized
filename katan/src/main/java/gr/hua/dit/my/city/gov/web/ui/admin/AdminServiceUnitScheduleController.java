@@ -9,10 +9,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import java.time.DayOfWeek;
 import java.util.Arrays;
 import java.util.List;
+
+//Controller υπεύθυνος για την διαχείριση των προγραμμάτων των υπηρεσιών
 
 @Controller
 @RequestMapping("/admin/service-units")
@@ -28,7 +29,7 @@ public class AdminServiceUnitScheduleController {
         this.scheduleRepository = scheduleRepository;
     }
 
-    // fragment/tab: λίστα + form για ένα συγκεκριμένο serviceUnit
+    //fragment/tab: λίστα + form για ένα συγκεκριμένο serviceUnit
     @GetMapping("/{id}/schedules")
     public String schedules(@PathVariable Long id, Model model) {
         ServiceUnit su = serviceUnitRepository.findById(id)
@@ -49,7 +50,7 @@ public class AdminServiceUnitScheduleController {
         ServiceUnit su = serviceUnitRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("ServiceUnit not found"));
 
-        // βασικοί έλεγχοι
+        //βασικοί έλεγχοι
         if (form.getStartTime() == null || form.getEndTime() == null || form.getDayOfWeek() == null) {
             ra.addFlashAttribute("error", "Συμπλήρωσε ημέρα και ώρες.");
             return "redirect:/admin/service-units/" + id + "/schedules";
@@ -62,7 +63,8 @@ public class AdminServiceUnitScheduleController {
             ra.addFlashAttribute("error", "Slot minutes μη έγκυρο.");
             return "redirect:/admin/service-units/" + id + "/schedules";
         }
-        // overlap check
+
+        //overlap check
         List<ServiceUnitSchedule> existing =
                 scheduleRepository.findByServiceUnitIdAndDayOfWeekAndActiveTrue(
                         id, form.getDayOfWeek()

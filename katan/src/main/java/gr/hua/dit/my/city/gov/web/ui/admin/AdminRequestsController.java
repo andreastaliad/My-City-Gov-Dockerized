@@ -10,10 +10,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+
+//Controller υπεύθυνο για την ανάθεση αιτημάτων και την προβολή τους
 
 @Controller
 @RequestMapping("/admin/requests")
@@ -38,13 +39,13 @@ public class AdminRequestsController {
         Request request = requestRepository.findById(id).orElseThrow();
         Person employee = personRepository.findById(employeeId).orElseThrow();
 
-        // Επιτρέπουμε μόνο υπάλληλο
+        //Επιτρέπουμε μόνο υπάλληλο
         if (employee.getType() != PersonType.EMPLOYEE) {
             model.addAttribute("error", "Επιτράπηκε μόνο επιλογή υπαλλήλων.");
             return reloadAdminRequests(model);
         }
 
-        // VALIDATION: ίδια υπηρεσία (service unit)
+        //VALIDATION: ίδια υπηρεσία
         Long reqSuId = (request.getRequestType() == null || request.getRequestType().getServiceUnit() == null)
                 ? null
                 : request.getRequestType().getServiceUnit().getId();
@@ -56,7 +57,7 @@ public class AdminRequestsController {
             return reloadAdminRequests(model);
         }
 
-        // Αν είναι ήδη ανατεθειμένο στον ίδιο υπάλληλο δώσε μήνυμα
+        //Αν είναι ήδη ανατεθειμένο στον ίδιο υπάλληλο δώσε μήνυμα
         if (request.getAssignedEmployee() != null
                 && request.getAssignedEmployee().getId().equals(employeeId)) {
             model.addAttribute("error", "Το αίτημα είναι ήδη ανατεθειμένο στον συγκεκριμένο υπάλληλο.");
@@ -64,11 +65,11 @@ public class AdminRequestsController {
         }
 
 
-        // Ανάθεση (atomic update στο repo)
+        //Ανάθεση
         int updated = requestRepository.adminAssignIfUnassigned(id, employeeId, LocalDateTime.now());
 
         if (updated == 0) {
-            model.addAttribute("error", "Το αίτημα έχει ήδη ανατεθεί (ή αναλήφθηκε) από άλλον. Κάντε ανανέωση.");
+            model.addAttribute("error", "Το αίτημα έχει ήδη ανατεθεί (ή αναλήφθηκε από άλλον). Κάντε ανανέωση.");
             return reloadAdminRequests(model);
         }
 
@@ -81,7 +82,7 @@ public class AdminRequestsController {
         List<Request> requests = requestRepository.findAll();
         model.addAttribute("requests", requests);
 
-        // Map: serviceUnitId -> employees της υπηρεσίας
+        //Map: serviceUnitId -> employees της υπηρεσίας
         Set<Long> serviceUnitIds = requests.stream()
                 .map(r -> r.getRequestType() == null || r.getRequestType().getServiceUnit() == null
                         ? null

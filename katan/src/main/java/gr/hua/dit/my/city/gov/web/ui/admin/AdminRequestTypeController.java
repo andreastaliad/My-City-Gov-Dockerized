@@ -8,6 +8,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+//Controller υπεύθυνο για την διαχείριση ειδών αιτήματος
+
 @Controller
 @RequestMapping("/admin/request-types")
 @PreAuthorize("hasRole('ADMIN')")
@@ -21,14 +23,14 @@ public class AdminRequestTypeController {
         this.serviceUnitRepository = serviceUnitRepository;
     }
 
-    // Πίνακας τύπων
+    //Πίνακας τύπων
     @GetMapping
     public String list(Model model) {
         model.addAttribute("types", requestTypeRepository.findAll());
         return "admin/request-types-list :: content";
     }
 
-    // Φόρμα νέου τύπου
+    //Φόρμα νέου τύπου
     @GetMapping("/new")
     public String form(Model model) {
         model.addAttribute("requestType", new RequestType());
@@ -36,7 +38,7 @@ public class AdminRequestTypeController {
         return "admin/request-type-form :: content";
     }
 
-    // Αποθήκευση
+    //Αποθήκευση
     @PostMapping
     public String create(RequestType type,
                          @RequestParam("serviceUnitId") Long serviceUnitId,
@@ -53,7 +55,7 @@ public class AdminRequestTypeController {
         return "admin/request-types-list :: content";
     }
 
-    // Ενεργοποίηση / Απενεργοποίηση
+    //Ενεργοποίηση/Απενεργοποίηση
     @PostMapping("/{id}/toggle")
     public String toggle(@PathVariable Long id, Model model) {
         RequestType type = requestTypeRepository.findById(id).orElseThrow();

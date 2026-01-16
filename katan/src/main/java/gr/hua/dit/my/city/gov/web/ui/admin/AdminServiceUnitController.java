@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.List;
 
+//Controller υπεύθυνος για την διαχείριση των υπηρεσιών την ανάθεση υπαλλήλων
+
 @Controller
 @RequestMapping("/admin/service-units")
 @PreAuthorize("hasRole('ADMIN')")
@@ -26,7 +28,7 @@ public class AdminServiceUnitController {
         this.personRepository = personRepository;
     }
 
-    // Πίνακας υπηρεσιών
+    //Πίνακας υπηρεσιών
     @GetMapping
     public String list(Model model) {
         model.addAttribute("serviceUnits", serviceUnitRepository.findAll());
@@ -38,7 +40,7 @@ public class AdminServiceUnitController {
         return "admin/service-units-list :: content";
     }
 
-    // Φόρμα δημιουργίας
+    //Φόρμα δημιουργίας
     @GetMapping("/new")
     public String createForm(Model model) {
         model.addAttribute("serviceUnit", new ServiceUnit());
@@ -52,14 +54,14 @@ public class AdminServiceUnitController {
 
         model.addAttribute("serviceUnit", su);
 
-        // όλοι οι υπάλληλοι για να τους δείξεις στη λίστα
+        //όλοι οι υπάλληλοι για να τους δείξει στη λίστα
         model.addAttribute("employees",
                 personRepository.findByTypeOrderByEmailAddressAsc(PersonType.EMPLOYEE));
 
         return "admin/service-unit-employees :: content";
     }
 
-    //αναθεση υπαλληλων
+    //ανάθεση υπαλλήλων
     @PostMapping("/{id}/employees")
     @Transactional
     public String updateEmployees(
@@ -69,14 +71,13 @@ public class AdminServiceUnitController {
     ) {
         ServiceUnit serviceUnit = serviceUnitRepository.findById(id).orElseThrow();
 
-        // Αν δεν έρθει τίποτα, το θεωρούμε "κανείς υπάλληλος"
+        //Αν δεν έρθει τίποτα, το θεωρούμε άδειο
         List<Long> ids = (employeeIds == null) ? List.of() : employeeIds;
 
-        // 1) Φέρε τους επιλεγμένους υπαλλήλους
+        //Φέρε τους επιλεγμένους υπαλλήλους
         List<Person> selectedEmployees = personRepository.findAllById(ids);
 
-        // 2) VALIDATION: κανείς επιλεγμένος να μην ανήκει σε άλλη υπηρεσία
-        // (επιτρέπουμε μόνο: null ή αυτήν εδώ)
+        //VALIDATION: κανείς επιλεγμένος να μην ανήκει σε άλλη υπηρεσία(επιτρέπουμε μόνο: null ή αυτήν εδώ)
         for (Person emp : selectedEmployees) {
             if (emp.getType() != PersonType.EMPLOYEE) {
                 ra.addFlashAttribute("error",
@@ -93,29 +94,29 @@ public class AdminServiceUnitController {
             }
         }
 
-        // 3) Αφαίρεσε όλους τους υπαλλήλους από ΑΥΤΗ την υπηρεσία
+        //Αφαίρεσε όλους τους υπαλλήλους από ΑΥΤΗ την υπηρεσία
         personRepository
                 .findByTypeAndServiceUnit_IdOrderByEmailAddressAsc(PersonType.EMPLOYEE, id)
                 .forEach(emp -> emp.setServiceUnit(null));
 
-        // 4) Ανάθεσε τους επιλεγμένους (που πλέον ξέρουμε ότι είναι valid)
+        //Ανάθεσε τους επιλεγμένους(που πλέον ξέρουμε ότι είναι valid)
         for (Person emp : selectedEmployees) {
             emp.setServiceUnit(serviceUnit);
         }
 
-        // Δεν χρειάζεται save μέσα σε loops αν το persistence context είναι ενεργό (λόγω @Transactional)
+        //Δεν χρειάζεται save μέσα σε loops αν το persistence context είναι ενεργό(λόγω @Transactional)
 
         ra.addFlashAttribute("success", "Οι υπάλληλοι ενημερώθηκαν επιτυχώς.");
         return "redirect:/admin/service-units";
     }
-    // Αποθήκευση
+    //Αποθήκευση
     @PostMapping
     public String save(@ModelAttribute ServiceUnit serviceUnit) {
         serviceUnitRepository.save(serviceUnit);
         return "redirect:/admin/service-units";
     }
 
-    // Ενεργοποίηση / Απενεργοποίηση
+    //Ενεργοποίηση/Απενεργοποίηση
     @PostMapping("/{id}/toggle")
     public String toggle(@PathVariable Long id) {
         ServiceUnit su = serviceUnitRepository.findById(id).orElseThrow();
