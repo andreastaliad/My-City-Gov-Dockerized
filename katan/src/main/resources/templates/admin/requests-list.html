@@ -39,7 +39,7 @@
               Επιλογή υπαλλήλου
             </option>
 
-            <!-- Όταν έχει assignee, δείξε τον ως πληροφορία (όχι επιλογή) -->
+            <!-- Όταν έχει assignee, τον δείχνει ως πληροφορία (όχι επιλογή) -->
             <option th:if="${r.assignedEmployee != null}"
                     th:value="${r.assignedEmployee.id}"
                     th:text="${'Ήδη ανατεθειμένο σε: ' + r.assignedEmployee.emailAddress}"
