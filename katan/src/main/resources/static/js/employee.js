@@ -15,8 +15,8 @@ function loadContent(url, targetId) {
         .then(html => {
             target.innerHTML = html;
 
-            // Αν φόρτωσες αιτήματα, ξαναδένεις handlers (όπως ήδη κάνεις)
             wireEmployeeRequestActions();
+            wireEmployeeRescheduleDropdowns();
         })
         .catch(err => {
             console.error(err);
@@ -118,6 +118,8 @@ function postFormAndReloadEmployeeAppointments(form) {
                 return;
             }
             target.innerHTML = html;
+            //Μετά την αντικατάσταση, ξαναδένει τα dropdowns
+            wireEmployeeRescheduleDropdowns();
         })
         .catch(err => {
             console.error(err);
@@ -125,11 +127,138 @@ function postFormAndReloadEmployeeAppointments(form) {
         });
 }
 
+async function fetchJson(url) {
+    const res = await fetch(url, { headers: { "Accept": "application/json" } });
+    if (!res.ok) return [];
+    return await res.json();
+}
+
+function fillSelect(select, placeholder, values, selectedValue) {
+    select.innerHTML = "";
+
+    const ph = document.createElement("option");
+    ph.value = "";
+    ph.disabled = true;
+    ph.selected = !selectedValue;
+    ph.textContent = placeholder;
+    select.appendChild(ph);
+
+    for (const v of values) {
+        const opt = document.createElement("option");
+        opt.value = v;
+        opt.textContent = v;
+        if (selectedValue && v === selectedValue) opt.selected = true;
+        select.appendChild(opt);
+    }
+
+    select.disabled = false;
+}
+
+function setLoading(select, text) {
+    select.innerHTML = "";
+    const opt = document.createElement("option");
+    opt.value = "";
+    opt.disabled = true;
+    opt.selected = true;
+    opt.textContent = text;
+    select.appendChild(opt);
+    select.disabled = true;
+}
+
+//Φορτώνει τις ημερομηνίες και τις ώρες για κάθε γραμμή υπαλλήλου χωρίς reload
+async function wireEmployeeRescheduleDropdowns() {
+    const dateSelects = document.querySelectorAll("select.js-emp-date");
+    if (!dateSelects.length) return;
+
+    //Cache ανά serviceUnitId για να μην γίνουν 100 fetch
+    const datesCache = new Map(); // suId -> ημερομηνίες
+    const timesCache = new Map(); // suId|ημερομηνίες -> ώρες
+
+    //Αντιστοίχιση ώρας με id ραντεβού
+    const timeSelects = document.querySelectorAll("select.js-emp-time");
+    const timeByApptId = new Map();
+    timeSelects.forEach(ts => timeByApptId.set(ts.dataset.appointmentId, ts));
+
+    for (const ds of dateSelects) {
+        const apptId = ds.dataset.appointmentId;
+        const suId = ds.dataset.serviceUnitId;
+        const currentDate = ds.dataset.currentDate || ds.value || "";
+        const ts = timeByApptId.get(String(apptId));
+        const currentTime = ts?.dataset.currentTime || ts?.value || "";
+
+        if (!suId) continue;
+
+        //Ημερομηνίες
+        if (!datesCache.has(suId)) {
+            setLoading(ds, "Φόρτωση ημερομηνιών...");
+            //Χρησιμοποιεί τα υπάρχοντα endpoints του πολίτη
+            const dates = await fetchJson(`/appointments/available-dates?serviceUnitId=${encodeURIComponent(suId)}`);
+            datesCache.set(suId, Array.isArray(dates) ? dates : []);
+        }
+
+        let dates = datesCache.get(suId) || [];
+        //Κρατά την τρέχουσα ημερομηνία μέσα ασχέτως διαθεσιμότητας
+        if (currentDate && !dates.includes(currentDate)) {
+            dates = [currentDate, ...dates];
+        }
+
+        if (!dates.length) {
+            fillSelect(ds, "-- Δεν υπάρχουν ημερομηνίες --", [], "");
+            if (ts) fillSelect(ts, "-- Δεν υπάρχουν ώρες --", [], "");
+            continue;
+        }
+
+        fillSelect(ds, "-- Επίλεξε ημερομηνία --", dates, currentDate);
+
+        //Για την φόρτωση ωρών
+        const loadTimes = async (date, preselectTime) => {
+            if (!ts) return;
+            if (!date) {
+                fillSelect(ts, "-- Επίλεξε πρώτα ημερομηνία --", [], "");
+                return;
+            }
+
+            const key = `${suId}|${date}`;
+            if (!timesCache.has(key)) {
+                setLoading(ts, "Φόρτωση ωρών...");
+                const times = await fetchJson(
+                    `/appointments/available-times?serviceUnitId=${encodeURIComponent(suId)}&date=${encodeURIComponent(date)}`
+                );
+                timesCache.set(key, Array.isArray(times) ? times : []);
+            }
+
+            let times = timesCache.get(key) || [];
+            //Κρατά την τρέχουσα ώρα μέσα ασχέτως διαθεσιμότητας
+            if (preselectTime && !times.includes(preselectTime)) {
+                times = [preselectTime, ...times];
+            }
+
+            if (!times.length) {
+                fillSelect(ts, "-- Δεν υπάρχουν ώρες --", [], "");
+                return;
+            }
+
+            fillSelect(ts, "-- Επίλεξε ώρα --", times, preselectTime || "");
+        };
+
+        //Αρχικές τιμές για ημέρες/ώρες
+        await loadTimes(currentDate, currentTime);
+
+        //Όταν αλλάζει ημερομηνία φορτώνει τις διαθέσιμες ώρες(χωρίς πλήρες page reload)
+        ds.addEventListener("change", async () => {
+            await loadTimes(ds.value, "");
+        });
+    }
+}
+
 window.postFormAndReloadEmployeeAppointments = postFormAndReloadEmployeeAppointments;
 window.postFormAndReloadEmployeeRequests = postFormAndReloadEmployeeRequests;
 window.loadContent = loadContent;
 
-document.addEventListener('DOMContentLoaded', wireEmployeeRequestActions);
+document.addEventListener('DOMContentLoaded', () => {
+    wireEmployeeRequestActions();
+    wireEmployeeRescheduleDropdowns();
+});
 
 document.addEventListener('change', function (e) {
     const sel = e.target;

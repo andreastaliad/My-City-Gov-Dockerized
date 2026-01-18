@@ -54,20 +54,25 @@
 
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 
-                    <input type="date"
-                           name="newDate"
-                           class="form-control form-control-sm"
-                           style="width: 150px;"
-                           th:value="${a.date}"
-                           required>
+                    <!-- Date dropdown -->
+                    <select name="newDate"
+                            class="form-select form-select-sm js-emp-date"
+                            th:attr="data-appointment-id=${a.id},
+                                     data-service-unit-id=${a.serviceUnitId},
+                                     data-current-date=${a.date}">
+                        <!-- Αρχική τιμή: η τρέχουσα -->
+                        <option th:value="${a.date}" th:text="${a.date}" selected></option>
+                    </select>
 
-                    <input type="time"
-                           name="newTime"
-                           class="form-control form-control-sm"
-                           style="width: 130px;"
-                           th:value="${a.time}"
-                           required>
-
+                    <!-- Time dropdown -->
+                    <select name="newTime"
+                            class="form-select form-select-sm js-emp-time"
+                            th:attr="data-appointment-id=${a.id},
+                                     data-service-unit-id=${a.serviceUnitId},
+                                     data-current-time=${a.time}">
+                        <!-- Αρχική τιμή: η τρέχουσα -->
+                        <option th:value="${a.time}" th:text="${a.time}" selected></option>
+                    </select>
                     <button type="submit" class="btn btn-sm btn-primary">Αλλαγή</button>
                 </form>
 
