@@ -25,12 +25,6 @@
                 <tr>
                     <td th:text="${issue.title}"></td>
                     <td th:text="${issue.status}"></td>
-                    <td>
-                        <button class="btn btn-link p-0" type="button" data-toggle-details="true"
-                                th:attr="onclick='toggleRowDetails(\'issue-details-' + '[[${issue.id}]]\', this)'">
-                            more
-                        </button>
-                    </td>
                 </tr>
                 <tr th:id="${'issue-details-' + issue.id}"
                     data-detail-row="true"

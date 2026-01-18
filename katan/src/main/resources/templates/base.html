@@ -14,14 +14,50 @@
 
     <!-- CUSTOM STYLES -->
     <style>
+        :root { --app-max: 1200px; }
+
+        body {
+            background: #f8f9fa;
+        }
+
         .app-container {
-            margin: 40px auto;
-            max-width: 600px;
-            text-align: center;
-            background: white;
+            margin: 32px auto;
+            width: min(96vw, var(--app-max));
+            background: #fff;
             border-radius: 12px;
-            padding: 30px;
+            padding: 24px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        /*Citizen home: κάνει scroll μέσα στο .tab-content*/
+        .app-container:has(.tab-content) .tab-content {
+            max-height: calc(100vh - 320px);
+            overflow: auto;
+            padding-bottom: 24px;
+            padding-right: 8px;
+        }
+
+        /*Admin home: κάνει scroll μέσα στο #adminTab*/
+        .app-container:has(#adminTab) #adminTab {
+            max-height: calc(100vh - 320px);
+            overflow: auto;
+
+            padding-bottom: 24px;
+            padding-right: 8px;
+        }
+
+        /*Employee home: κάνει scroll μέσα στο #employeeTab*/
+        .app-container:has(#employeeTab) #employeeTab {
+            max-height: calc(100vh - 320px);
+            overflow: auto;
+
+            padding-bottom: 24px;
+            padding-right: 8px;
+        }
+
+        /*Για μεγάλες οθόνες */
+        @media (min-width: 1400px) {
+            :root { --app-max: 1320px; }
         }
     </style>
 </head>
@@ -30,7 +66,7 @@
 
 <header class="text-center p-4" layout:fragment="header"></header>
 
-<main class="app-container p-4" layout:fragment="main"></main>
+<main class="app-container app-shell" layout:fragment="main"></main>
 
 <footer class="text-center p-4 mt-4" layout:fragment="footer">
     <small>&copy; 2025 My City Gov</small>
