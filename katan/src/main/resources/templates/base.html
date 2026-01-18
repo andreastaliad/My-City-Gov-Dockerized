@@ -83,13 +83,7 @@
             .then(html => {
                 document.getElementById(targetId).innerHTML = html;
                 if (typeof attachEmployeeFormHandler === "function") attachEmployeeFormHandler();
-                if (typeof submitRequestType === "function") submitRequestType();
-                if (typeof submitServiceUnit === "function") submitServiceUnit();
-                if (typeof submitToggle === "function") submitToggle();
-                if (typeof confirmAction === "function") confirmAction();
-                if (typeof submitIssueStatus === "function") submitIssueStatus();
-                if (typeof submitRequestTypeToggle === "function") submitRequestTypeToggle();
-                if (typeof submitServiceUnitToggle === "function") submitServiceUnitToggle();
+                    // removed wrong handler calls
             })
             .catch(error => console.error("Error loading content:", error));
     }
@@ -258,5 +252,6 @@
 </script>
 <script th:src="@{/js/appointments.js}"></script>
 <script th:src="@{/js/employee.js}"></script>
+<script th:src="@{/js/admin.js}"></script>
 </body>
 </html>
