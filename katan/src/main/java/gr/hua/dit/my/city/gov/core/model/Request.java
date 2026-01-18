@@ -30,6 +30,7 @@ public class Request {
     private Person citizen;
 
     // Comma-separated MinIO object keys for uploaded attachments
+    @Column(name = "attachment_key", length = 2048)
     private String attachmentKey;
 
     //Τωρινή κατάσταση
