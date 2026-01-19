@@ -56,8 +56,8 @@ public class RegistrationController {
         if (AuthUtils.isAuthenticated(authentication)) {
             return "redirect:/profile";
         }
-        // Initial data for the form.
-        final CreatePersonRequest createPersonRequest = new CreatePersonRequest(PersonType.CITIZEN, "", "", "", "", "", "", "", "");
+        // Initial data for the form. Pre-fill phone number with +30 so users see the country code.
+        final CreatePersonRequest createPersonRequest = new CreatePersonRequest(PersonType.CITIZEN, "", "", "", "", "", "+30", "", "");
         model.addAttribute("createPersonRequest", createPersonRequest);
         return "register";
     }
