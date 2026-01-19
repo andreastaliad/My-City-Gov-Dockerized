@@ -48,6 +48,8 @@ Clone & run the app:
   docker compose up
 ```
 
+## -- Important Note --
+Don't forget to change minIO storage console default credentials and add your own nylas api key either in application.properties or as an enviromental variable directly.
 
     
 ## Related
