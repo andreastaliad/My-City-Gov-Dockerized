@@ -2,6 +2,9 @@ package gr.hua.dit.my.city.gov.web.ui.admin;
 
 import gr.hua.dit.my.city.gov.core.service.model.EmployeeRegistrationService;
 import gr.hua.dit.my.city.gov.web.rest.dto.EmployeeCreateRequest;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,9 +24,31 @@ public class AdminEmployeeController {
 
     //Κάνει την εγγραφή
     @PostMapping("/employees")
-    public String createEmployee(EmployeeCreateRequest request) {
-        employeeRegistrationService.registerEmployee(request);
-        return "admin/employee-success :: content";
+    public Object createEmployee(EmployeeCreateRequest request, HttpServletRequest httpRequest) {
+        final boolean isAjax =
+                "XMLHttpRequest".equalsIgnoreCase(httpRequest.getHeader("X-Requested-With"));
+
+        try {
+            employeeRegistrationService.registerEmployee(request);
+
+            if (isAjax) {
+                // Επιστρέφουμε απλό μήνυμα επιτυχίας για χρήση από AJAX
+                return ResponseEntity.ok("OK");
+            }
+
+            // Μη-AJAX: απλό redirect, χωρίς λευκή σελίδα με κείμενο
+            return "redirect:/admin/home";
+        } catch (DataIntegrityViolationException ex) {
+            // Πιθανή παραβίαση μοναδικότητας (AFM/AMKA/email κλπ.)
+            if (isAjax) {
+                return ResponseEntity.badRequest().body(
+                        "Υπάρχει ήδη υπάλληλος με τα ίδια στοιχεία (π.χ. ΑΜΚΑ ή ΑΦΜ)."
+                );
+            }
+
+            // Μη-AJAX: σε αποτυχία απλώς επιστρέφουμε στο admin home
+            return "redirect:/admin/home";
+        }
     }
 
 }

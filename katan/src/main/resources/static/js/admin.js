@@ -121,25 +121,25 @@ function attachEmployeeFormHandler() {
         e.preventDefault();
 
         const formData = new FormData(form);
+        const headers = {
+            "X-Requested-With": "XMLHttpRequest",
+            ...csrfHeaders()
+        };
 
-        const csrfToken = form.querySelector("input[name='_csrf']").value;
-
-        fetch("/admin/employees", {
+        fetch(form.action || "/admin/employees", {
             method: "POST",
             body: formData,
-            headers: {
-                "X-CSRF-TOKEN": csrfToken,
-                "X-Requested-With": "XMLHttpRequest"
-            }
+            credentials: 'same-origin',
+            headers: headers
         })
-            .then(res => {
-                if (!res.ok) throw new Error("Αποτυχία δημιουργίας υπαλλήλου");
-                return res.text();
+            .then(() => {
+                // Χωρίς μηνύματα: απλά ανανεώνουμε τη λίστα υπαλλήλων
+                loadContent('/admin/users/employees', 'adminTab');
             })
-            .then(html => {
-                document.getElementById("adminTab").innerHTML = html;
-            })
-            .catch(err => alert(err.message));
+            .catch(() => {
+                // Ακόμα και σε σφάλμα, απλή ανανέωση ώστε να μην μένει λευκή σελίδα
+                loadContent('/admin/users/employees', 'adminTab');
+            });
     });
 }
 

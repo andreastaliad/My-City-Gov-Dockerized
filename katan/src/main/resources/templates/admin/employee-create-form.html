@@ -2,7 +2,7 @@
 
   <h4>Δημιουργία Υπαλλήλου</h4>
 
-  <form id="employeeForm">
+  <form id="employeeForm" th:action="@{/admin/employees}" method="post">
     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
     <div class="mb-3">
       <label>Email</label>
