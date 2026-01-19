@@ -88,6 +88,56 @@
             .catch(error => console.error("Error loading content:", error));
     }
 
+    // submit για τη φόρμα αιτήματος με progress bar στο upload
+    async function submitRequestWithProgress(form) {
+        const progressContainer = document.getElementById("uploadProgressContainer");
+        const progressBar = document.getElementById("uploadProgressBar");
+
+        // reset & εμφάνιση μόνο αν υπάρχει progress bar στο fragment
+        if (progressContainer && progressBar) {
+            progressContainer.style.display = "block";
+            progressBar.style.width = "0%";
+            progressBar.textContent = "0%";
+            progressContainer.setAttribute("aria-valuenow", "0");
+        }
+
+        const xhr = new XMLHttpRequest();
+        xhr.open(form.method || "POST", form.action);
+        xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+
+        // ενημέρωση progress bar κατά το upload
+        xhr.upload.onprogress = function (event) {
+            if (!event.lengthComputable || !progressContainer || !progressBar) return;
+
+            const percent = Math.round((event.loaded / event.total) * 100);
+            progressBar.style.width = percent + "%";
+            progressBar.textContent = percent + "%";
+            progressContainer.setAttribute("aria-valuenow", String(percent));
+        };
+
+        xhr.onload = function () {
+            const target = document.getElementById("requests");
+            if (target) {
+                target.innerHTML = xhr.responseText;
+            }
+
+            if (progressContainer && progressBar) {
+                progressBar.style.width = "100%";
+                progressBar.textContent = "100%";
+                progressContainer.setAttribute("aria-valuenow", "100");
+            }
+        };
+
+        xhr.onerror = function () {
+            if (progressContainer) {
+                progressContainer.style.display = "none";
+            }
+            alert("Σφάλμα κατά την αποστολή του αιτήματος.");
+        };
+
+        xhr.send(new FormData(form));
+    }
+
     document.addEventListener("submit", async (e) => {
         const form = e.target;
         if (!(form instanceof HTMLFormElement)) return;
@@ -100,6 +150,12 @@
 
         e.preventDefault();
 
+        // για τη φόρμα αιτημάτων χρησιμοποιούμε XHR ώστε να έχουμε upload progress
+        if (isRequest) {
+            await submitRequestWithProgress(form);
+            return;
+        }
+
         const resp = await fetch(form.action, {
             method: form.method || "POST",
             body: new FormData(form),
@@ -108,10 +164,7 @@
 
         const html = await resp.text();
 
-        const targetId =
-            isRequest ? "requests" :
-                isAppointment ? "appointments" :
-                    "issues";
+        const targetId = isAppointment ? "appointments" : "issues";
 
         const container = document.getElementById(targetId);
         if (container) container.innerHTML = html;
@@ -149,7 +202,7 @@
 
         const MAX_FILE_SIZE_MB = 10; // keep in sync with application.properties
         const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
-        const MAX_TOTAL_SIZE_MB = 20;
+        const MAX_TOTAL_SIZE_MB = 100;
         const MAX_TOTAL_SIZE_BYTES = MAX_TOTAL_SIZE_MB * 1024 * 1024;
 
         form.addEventListener("submit", function(e) {
