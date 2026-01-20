@@ -84,6 +84,7 @@ function wireEmployeeRequestActions() {
             // Αν κάτι πάει στραβά (500), να μην ανοίξει whitelabel. Κάνει reload το tab ή full reload.
             if (!resp.ok) {
                 await reloadEmployeeRequestsTab();
+                alert('Αποτυχία ενέργειας');
                 return;
             }
 
@@ -92,6 +93,7 @@ function wireEmployeeRequestActions() {
             const container = document.querySelector('#employee-requests-tab-content');
             if (container) {
                 container.innerHTML = html;
+                alert('Η ενέργεια ολοκληρώθηκε επιτυχώς');
                 wireEmployeeRequestActions();
             } else {
                 // fallback
@@ -120,6 +122,7 @@ function postFormAndReloadEmployeeAppointments(form) {
             target.innerHTML = html;
             //Μετά την αντικατάσταση, ξαναδένει τα dropdowns
             wireEmployeeRescheduleDropdowns();
+            alert('Η διαχείριση ραντεβού ολοκληρώθηκε επιτυχώς');
         })
         .catch(err => {
             console.error(err);

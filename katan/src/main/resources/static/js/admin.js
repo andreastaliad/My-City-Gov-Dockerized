@@ -46,6 +46,7 @@ function submitServiceUnit(form) {
             alert("Αποτυχία αποθήκευσης υπηρεσίας");
             return;
         }
+        alert("Η υπηρεσία αποθηκεύτηκε επιτυχώς");
         loadContent('/admin/service-units', 'adminTab');
     });
 }
@@ -60,6 +61,7 @@ function submitToggle(form) {
             alert("Αποτυχία εναλλαγής τύπου αιτήματος");
             return;
         }
+        alert("Η εναλλαγή τύπου αιτήματος ολοκληρώθηκε επιτυχώς");
         loadContent('/admin/request-types', 'adminTab');
     });
 }
@@ -133,11 +135,11 @@ function attachEmployeeFormHandler() {
             headers: headers
         })
             .then(() => {
-                // Χωρίς μηνύματα: απλά ανανεώνουμε τη λίστα υπαλλήλων
+                alert("Οι υπάλληλοι αποθηκεύτηκαν επιτυχώς");
                 loadContent('/admin/users/employees', 'adminTab');
             })
             .catch(() => {
-                // Ακόμα και σε σφάλμα, απλή ανανέωση ώστε να μην μένει λευκή σελίδα
+                alert("Αποτυχία αποθήκευσης υπαλλήλων");
                 loadContent('/admin/users/employees', 'adminTab');
             });
     });
@@ -162,6 +164,7 @@ function submitRequestTypeToggle(form) {
                 alert("Αποτυχία εναλλαγής τύπου αιτήματος");
                 return;
             }
+            alert("Η εναλλαγή τύπου αιτήματος ολοκληρώθηκε επιτυχώς");
             loadContent('/admin/request-types', 'adminTab');
         })
         .catch(() => alert("Σφάλμα επικοινωνίας με τον server"));
@@ -178,6 +181,7 @@ function submitServiceUnitToggle(form) {
                 alert("Αποτυχία αλλαγής κατάστασης υπηρεσίας");
                 return;
             }
+            alert("Η αλλαγή κατάστασης υπηρεσίας ολοκληρώθηκε επιτυχώς");
             //Μένει στο ιδιο tab
             loadContent('/admin/service-units', 'adminTab');
         })
@@ -198,7 +202,8 @@ function submitPostAndReload(form, reloadUrl) {
                 throw new Error("POST failed");
             }
             // reload the tab content after successful action
-            return loadContent(reloadUrl, 'adminTab');
+            loadContent(reloadUrl, 'adminTab');
+            alert("Η ενέργεια ολοκληρώθηκε επιτυχώς");
         })
         .catch(() => alert("Αποτυχία ενέργειας"));
 }
@@ -246,7 +251,7 @@ function saveServiceUnitEmployees(serviceUnitId) {
         credentials: 'same-origin',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            ...csrfHeaders()   // ⬅️ ΤΟ ΚΡΙΣΙΜΟ
+            ...csrfHeaders()   
         },
         body: body
     })
@@ -256,6 +261,7 @@ function saveServiceUnitEmployees(serviceUnitId) {
                 alert("Αποτυχία ανάθεσης υπαλλήλων");
                 return;
             }
+            alert("Η ανάθεση υπαλλήλων αποθηκεύτηκε επιτυχώς");
             loadContent('/admin/service-units', 'adminTab');
         });
 }
@@ -279,6 +285,7 @@ function postFormAndReloadAdminRequests(form) {
         })
         .then(html => {
             document.getElementById('adminTab').innerHTML = html;
+            alert('Η ανάθεση αιτήματος ολοκληρώθηκε επιτυχώς');
         })
         .catch(err => {
             console.error(err);
