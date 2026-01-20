@@ -167,7 +167,12 @@ function submitRequestTypeToggle(form) {
             alert("Η εναλλαγή τύπου αιτήματος ολοκληρώθηκε επιτυχώς");
             loadContent('/admin/request-types', 'adminTab');
         })
-        .catch(() => alert("Σφάλμα επικοινωνίας με τον server"));
+        .catch(err => {
+            console.error('submitRequestTypeToggle failed, fallback reload', err);
+            // Ακόμα κι αν αποτύχει το fetch (π.χ. mixed-content redirect),
+            // δοκίμασε να ανανεώσεις το tab ώστε να φανεί η πραγματική κατάσταση.
+            loadContent('/admin/request-types', 'adminTab');
+        });
 }
 
 function submitServiceUnitToggle(form) {
@@ -185,7 +190,12 @@ function submitServiceUnitToggle(form) {
             //Μένει στο ιδιο tab
             loadContent('/admin/service-units', 'adminTab');
         })
-        .catch(() => alert("Σφάλμα επικοινωνίας με τον server"));
+        .catch(err => {
+            console.error('submitServiceUnitToggle failed, fallback reload', err);
+            // Όπως και πιο πάνω: αν το fetch σπάσει (π.χ. mixed-content),
+            // κάνε ανανέωση του tab ώστε να τραβηχτεί η κατάσταση από τον server.
+            loadContent('/admin/service-units', 'adminTab');
+        });
 }
 
 function submitPostAndReload(form, reloadUrl) {
@@ -196,16 +206,29 @@ function submitPostAndReload(form, reloadUrl) {
         headers: csrfHeaders()
     })
         .then(async res => {
+            const html = await res.text();
+
             if (!res.ok) {
-                const text = await res.text();
-                console.error("POST failed:", res.status, text);
+                console.error("POST failed:", res.status, html);
                 throw new Error("POST failed");
             }
-            // reload the tab content after successful action
-            loadContent(reloadUrl, 'adminTab');
-            alert("Η ενέργεια ολοκληρώθηκε επιτυχώς");
+
+            // Χρησιμοποίησε κατευθείαν το fragment που επιστρέφει το controller
+            // ώστε να εμφανίζονται σωστά τα flash messages (success/error)
+            const target = document.getElementById('adminTab');
+            if (target) {
+                target.innerHTML = html;
+            } else {
+                // fallback: αν για κάποιο λόγο δεν βρεθεί, κάνε κλασικό reload
+                loadContent(reloadUrl, 'adminTab');
+            }
         })
-        .catch(() => alert("Αποτυχία ενέργειας"));
+        .catch(err => {
+            console.error('submitPostAndReload failed, trying fallback reload', err);
+            // Σε περιπτώσεις όπως mixed-content redirect, η POST πιθανότατα ολοκληρώθηκε
+            // αλλά το fetch απέτυχε. Δοκίμασε να τραβήξεις ξανά το fragment.
+            loadContent(reloadUrl, 'adminTab');
+        });
 }
 
 function submitScheduleAction(form) {

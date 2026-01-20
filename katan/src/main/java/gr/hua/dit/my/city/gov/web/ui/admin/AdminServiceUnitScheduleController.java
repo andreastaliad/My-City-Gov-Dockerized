@@ -42,64 +42,70 @@ public class AdminServiceUnitScheduleController {
         return "admin/service-unit-schedule :: content";
     }
 
-    @PostMapping("/{id}/schedules")
-    public String createSchedule(@PathVariable Long id,
-                                 @ModelAttribute("scheduleForm") ServiceUnitSchedule form,
-                                 RedirectAttributes ra) {
+        @PostMapping("/{id}/schedules")
+        public String createSchedule(@PathVariable Long id,
+                                                                 @ModelAttribute("scheduleForm") ServiceUnitSchedule form,
+                                                                 Model model) {
 
-        ServiceUnit su = serviceUnitRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("ServiceUnit not found"));
+                ServiceUnit su = serviceUnitRepository.findById(id)
+                                .orElseThrow(() -> new IllegalArgumentException("ServiceUnit not found"));
 
-        //βασικοί έλεγχοι
-        if (form.getStartTime() == null || form.getEndTime() == null || form.getDayOfWeek() == null) {
-            ra.addFlashAttribute("error", "Συμπλήρωσε ημέρα και ώρες.");
-            return "redirect:/admin/service-units/" + id + "/schedules";
+                String error = null;
+
+                //βασικοί έλεγχοι
+                if (form.getStartTime() == null || form.getEndTime() == null || form.getDayOfWeek() == null) {
+                        error = "Συμπλήρωσε ημέρα και ώρες.";
+                } else if (!form.getEndTime().isAfter(form.getStartTime())) {
+                        error = "Η ώρα λήξης πρέπει να είναι μετά την ώρα έναρξης.";
+                } else if (form.getSlotMinutes() <= 0 || form.getSlotMinutes() > 180) {
+                        error = "Slot minutes μη έγκυρο.";
+                } else {
+                        //overlap check
+                        List<ServiceUnitSchedule> existing =
+                                        scheduleRepository.findByServiceUnitIdAndDayOfWeekAndActiveTrue(
+                                                        id, form.getDayOfWeek()
+                                        );
+
+                        boolean overlaps = existing.stream()
+                                        .anyMatch(existingSchedule ->
+                                                        form.getStartTime().isBefore(existingSchedule.getEndTime()) &&
+                                                                        form.getEndTime().isAfter(existingSchedule.getStartTime())
+                                        );
+
+                        if (overlaps) {
+                                error = "Το ωράριο επικαλύπτεται με υπάρχον.";
+                        } else {
+                                long totalMinutes =
+                                                java.time.Duration.between(
+                                                                form.getStartTime(),
+                                                                form.getEndTime()
+                                                ).toMinutes();
+
+                                if (totalMinutes % form.getSlotMinutes() != 0) {
+                                        error = "Το slot δεν διαιρεί ακριβώς το ωράριο.";
+                                }
+                        }
+                }
+
+                if (error == null) {
+                        form.setServiceUnit(su);
+                        scheduleRepository.save(form);
+                        model.addAttribute("success", "Το ωράριο αποθηκεύτηκε.");
+                        // καθαρό form για επόμενη εισαγωγή
+                        model.addAttribute("scheduleForm", new ServiceUnitSchedule());
+                } else {
+                        model.addAttribute("error", error);
+                        // διατηρούμε τα ήδη συμπληρωμένα πεδία στο form
+                        model.addAttribute("scheduleForm", form);
+                }
+
+                // επαναφόρτωση λίστας ωραρίων και λοιπών δεδομένων για το fragment
+                model.addAttribute("serviceUnit", su);
+                model.addAttribute("schedules", scheduleRepository.findByServiceUnitIdOrderByDayOfWeekAscStartTimeAsc(id));
+                model.addAttribute("days", Arrays.asList(DayOfWeek.values()));
+
+                return "admin/service-unit-schedule :: content";
         }
-        if (!form.getEndTime().isAfter(form.getStartTime())) {
-            ra.addFlashAttribute("error", "Η ώρα λήξης πρέπει να είναι μετά την ώρα έναρξης.");
-            return "redirect:/admin/service-units/" + id + "/schedules";
-        }
-        if (form.getSlotMinutes() <= 0 || form.getSlotMinutes() > 180) {
-            ra.addFlashAttribute("error", "Slot minutes μη έγκυρο.");
-            return "redirect:/admin/service-units/" + id + "/schedules";
-        }
-
-        //overlap check
-        List<ServiceUnitSchedule> existing =
-                scheduleRepository.findByServiceUnitIdAndDayOfWeekAndActiveTrue(
-                        id, form.getDayOfWeek()
-                );
-
-        boolean overlaps = existing.stream()
-                .anyMatch(existingSchedule ->
-                        form.getStartTime().isBefore(existingSchedule.getEndTime()) &&
-                                form.getEndTime().isAfter(existingSchedule.getStartTime())
-                );
-
-        if (overlaps) {
-            ra.addFlashAttribute("error", "Το ωράριο επικαλύπτεται με υπάρχον.");
-            return "redirect:/admin/service-units/" + id + "/schedules";
-        }
-
-        long totalMinutes =
-                java.time.Duration.between(
-                        form.getStartTime(),
-                        form.getEndTime()
-                ).toMinutes();
-
-        if (totalMinutes % form.getSlotMinutes() != 0) {
-            ra.addFlashAttribute(
-                    "error",
-                    "Το slot δεν διαιρεί ακριβώς το ωράριο."
-            );
-            return "redirect:/admin/service-units/" + id + "/schedules";
-        }
-
-        form.setServiceUnit(su);
-        scheduleRepository.save(form);
-        ra.addFlashAttribute("success", "Το ωράριο αποθηκεύτηκε.");
-        return "redirect:/admin/service-units/" + id + "/schedules";
-    }
 
     @PostMapping("/{serviceUnitId}/schedules/{scheduleId}/toggle")
     public String toggle(@PathVariable Long serviceUnitId,
