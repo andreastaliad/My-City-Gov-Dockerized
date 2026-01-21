@@ -8,6 +8,7 @@ import gr.hua.dit.my.city.gov.core.security.CurrentUser;
 import gr.hua.dit.my.city.gov.core.security.CurrentUserProvider;
 import gr.hua.dit.my.city.gov.core.service.EmailSender;
 import gr.hua.dit.my.city.gov.core.service.SmsSender;
+import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -125,7 +126,6 @@ public class EmployeeRequestsController {
     }
 
     @PostMapping("/{id}/claim")
-    @Transactional
     public String claim(@PathVariable Long id, Model model) {
 
         Long personId = currentUserProvider.getCurrentUser()
@@ -153,8 +153,23 @@ public class EmployeeRequestsController {
             return "employee/employee-requests-list :: content";
         }
 
-        //Atomic claim
-        requestRepository.claimIfUnassigned(id, employee.getId(), LocalDateTime.now());
+        // Αν έχει ήδη ανατεθεί σε κάποιον άλλο, μην ξανακάνεις ανάθεση
+        if (request.getAssignedEmployee() != null) {
+            loadRequests(model, suId, employee.getId());
+            model.addAttribute("error", "Το αίτημα έχει ήδη ανατεθεί σε υπάλληλο.");
+            return "employee/employee-requests-list :: content";
+        }
+
+        // Απλή ανάθεση χωρίς custom SQL update (αποφεύγεται το lock error της MariaDB)
+        request.setAssignedEmployee(employee);
+        request.setAssignedAt(LocalDateTime.now());
+        try {
+            requestRepository.save(request);
+        } catch (CannotAcquireLockException ex) {
+            loadRequests(model, suId, employee.getId());
+            model.addAttribute("error", "Προέκυψε προσωρινό σφάλμα βάσης. Δοκιμάστε ξανά.");
+            return "employee/employee-requests-list :: content";
+        }
 
         loadRequests(model, suId, employee.getId());
         return "employee/employee-requests-list :: content";
@@ -162,7 +177,6 @@ public class EmployeeRequestsController {
 
 
     @PostMapping("/{id}/unclaim")
-    @Transactional
     public String unclaim(@PathVariable Long id, Model model) {
 
         Long personId = currentUserProvider.getCurrentUser()
@@ -180,8 +194,25 @@ public class EmployeeRequestsController {
 
         Long suId = employee.getServiceUnit().getId();
 
-        //Μόνο αν είναι δικό του
-        requestRepository.unclaimIfOwned(id, personId);
+        Request request = requestRepository.findById(id).orElseThrow();
+
+        // Μόνο αν είναι δικό του
+        if (request.getAssignedEmployee() == null
+                || !request.getAssignedEmployee().getId().equals(personId)) {
+            loadRequests(model, suId, employee.getId());
+            model.addAttribute("error", "Δεν μπορείτε να αφήσετε αίτημα που δεν είναι ανατεθειμένο σε εσάς.");
+            return "employee/employee-requests-list :: content";
+        }
+
+        request.setAssignedEmployee(null);
+        request.setAssignedAt(null);
+        try {
+            requestRepository.save(request);
+        } catch (CannotAcquireLockException ex) {
+            loadRequests(model, suId, employee.getId());
+            model.addAttribute("error", "Προέκυψε προσωρινό σφάλμα βάσης. Δοκιμάστε ξανά.");
+            return "employee/employee-requests-list :: content";
+        }
 
         loadRequests(model, suId, employee.getId());
         return "employee/employee-requests-list :: content";
