@@ -57,21 +57,24 @@ public class AdminRequestsController {
             return reloadAdminRequests(model);
         }
 
-        //Αν είναι ήδη ανατεθειμένο στον ίδιο υπάλληλο δώσε μήνυμα
+        // Αν είναι ήδη ανατεθειμένο στον ίδιο υπάλληλο δώσε μήνυμα
         if (request.getAssignedEmployee() != null
                 && request.getAssignedEmployee().getId().equals(employeeId)) {
             model.addAttribute("error", "Το αίτημα είναι ήδη ανατεθειμένο στον συγκεκριμένο υπάλληλο.");
             return reloadAdminRequests(model);
         }
 
-
-        //Ανάθεση
-        int updated = requestRepository.adminAssignIfUnassigned(id, employeeId, LocalDateTime.now());
-
-        if (updated == 0) {
+        // Αν είναι ήδη ανατεθειμένο σε ΚΑΠΟΙΟΝ (άλλον) μην το αλλάζεις
+        if (request.getAssignedEmployee() != null
+                && !request.getAssignedEmployee().getId().equals(employeeId)) {
             model.addAttribute("error", "Το αίτημα έχει ήδη ανατεθεί (ή αναλήφθηκε από άλλον). Κάντε ανανέωση.");
             return reloadAdminRequests(model);
         }
+
+        // Απλή ανάθεση με entity save (όχι bulk JPQL update)
+        request.setAssignedEmployee(employee);
+        request.setAssignedAt(LocalDateTime.now());
+        requestRepository.save(request);
 
         model.addAttribute("success", "Το αίτημα ανατέθηκε επιτυχώς.");
         return reloadAdminRequests(model);
